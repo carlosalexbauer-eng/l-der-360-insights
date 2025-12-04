@@ -1,304 +1,277 @@
-// Mock data for the Leadership Dashboard
+// Real data extracted from Painel_de_lideranças_VF_04-12-2025.xlsx
 
 export interface Leader {
   id: string;
   nome: string;
   cadastro: string;
-  liderDeSiMesmo: boolean;
-  liderDosOutros: boolean;
-  liderCorporativo: boolean;
-  impacto: 'Alto' | 'Médio' | 'Baixo';
-  sexo: 'M' | 'F';
-  situacao: 'Ativo' | 'Inativo' | 'Afastado';
+  sexo: string;
+  situacao: string;
   liderDoLider: string;
-  dataAdmissao: string;
   cargo: string;
   filial: string;
   diretoria: string;
-  diretoOuIndireto: 'Direto' | 'Indireto';
-  ce: string;
-  nivelCarreira: 'Júnior' | 'Pleno' | 'Sênior' | 'Especialista' | 'Coordenador' | 'Gerente' | 'Diretor';
-  dataVirouLider: string;
-  tempoComoLider: number;
-  primeiraLideranca: boolean;
-  comoSetornouLider: string;
-  origemLider: string;
-  tempoNoCargoAtual: number;
+  diretoOuIndireto: string;
+  nivelCarreira: string;
+  tempoComoLider: string;
+  tempoCargoAtual: string;
   qtdeColabsDiretos2025: number;
   qtdeColabsIndiretos2025: number;
   admissoes2024: number;
   admissoes2025: number;
-  enpsOnboarding2024: number;
-  enpsOnboarding2025: number;
-  leadershipReview2023: string;
-  leadershipReview2025: string;
-  avalCompetencias2024: 'A' | 'B' | 'C' | 'D' | 'E';
-  avalCompetenciasFoco2024: 'A' | 'B' | 'C' | 'D' | 'E';
-  percAvalConcluidas2024: number;
-  qtdeAvaliacoes2025: number;
-  avalEmAndamento2025: number;
-  avalConcluida2025: number;
-  percAvalAndamento2025: number;
-  percAvalConcluidas2025: number;
-  atingimentoCR2024: number;
-  atingimentoCR2025: number;
-  desejoCarreira: string;
-  mapeadoSucessor2024: boolean;
-  mapeadoSucessor2025: boolean;
-  participanteLiderAcao: boolean;
-  participantePool: boolean;
-  statusLeaderStart: 'Concluído' | 'Em andamento' | 'Não iniciado';
-  modulosLeadershipJourney: number;
-  percLeadershipJourney: number;
-  gptwENPS2024: number;
-  gptwENPS2025: number;
-  gptwLNPS2025: number;
-  estagioLideranca2024: 'Inicial' | 'Em Desenvolvimento' | 'Consolidado' | 'Referência';
-  estagioLideranca2025: 'Inicial' | 'Em Desenvolvimento' | 'Consolidado' | 'Referência';
-  gptwIVR2024: number;
-  gptwIVR2025: number;
-  moodsENPS2025: number[];
-  mediaENPS: number;
-  percFeedbacks2024: number;
-  percFeedbacks2025: number;
-  qtdeFeedbacksHCM: number;
-  percAtingimentoFeedbacks: number;
-  percDesligamentosPorLider: number;
-  pesquisaDesligamentoENPS: number;
+  ultimoQuadranteReview: string;
+  atingimentoCR2024: number | null;
+  atingimentoCR2025: number | null;
+  mapeadoSucessor2024: string;
+  mapeadoSucessor2025: string;
+  participantePoolMentoria: string;
+  gptwENPS2024: number | null;
+  gptwENPS2025: number | null;
+  gptwLNPS2025: number | null;
+  gptwEstagioLideranca2025: string;
+  moodsENPS: (number | null)[];
+  mediaENPSGestor2025: number | null;
+  percentDesligamentos2024: number | null;
+  percentDesligamentos2025: number | null;
   indicados: Indicado[];
-  jobRotation?: JobRotation;
-  prontidaoSucessao: 'Ready Now' | 'Ready Soon' | 'Ready Later' | 'Não Mapeado';
+  jobRotation: { nomeLider: string; nivelCarreira: string; status: string } | null;
 }
 
 export interface Indicado {
   nome: string;
-  cargo: string;
-  status: 'Ativo' | 'Inativo';
-  prontidao: 'Ready Now' | 'Ready Soon' | 'Ready Later';
-  enps: number;
-  atingimentoCR: number;
+  cargoAtual: string;
   nivelCarreira: string;
+  prontidao: string;
+  diretoria: string;
+  status: string;
 }
 
-export interface JobRotation {
-  indicado: boolean;
-  status: 'Aprovado' | 'Em análise' | 'Recusado' | 'Concluído';
-  tempoNoCargo: number;
-}
+export const allLeaders: Leader[] = [
+  {
+    id: "1", nome: "Alexia da Rosa", cadastro: "9138", sexo: "Masculino", situacao: "Ativo",
+    liderDoLider: "Brenda Rezende", cargo: "Head of Product", filial: "Senior Matriz",
+    diretoria: "Diretoria de Marketing e Produto", diretoOuIndireto: "Indireto", nivelCarreira: "M2",
+    tempoComoLider: "4 meses", tempoCargoAtual: "4 meses", qtdeColabsDiretos2025: 1, qtdeColabsIndiretos2025: 17,
+    admissoes2024: 0, admissoes2025: 0, ultimoQuadranteReview: "", atingimentoCR2024: null, atingimentoCR2025: null,
+    mapeadoSucessor2024: "Não", mapeadoSucessor2025: "Não", participantePoolMentoria: "",
+    gptwENPS2024: null, gptwENPS2025: null, gptwLNPS2025: null, gptwEstagioLideranca2025: "",
+    moodsENPS: [], mediaENPSGestor2025: null, percentDesligamentos2024: 0, percentDesligamentos2025: 0,
+    indicados: [], jobRotation: null
+  },
+  {
+    id: "2", nome: "Elisa Freitas", cadastro: "2255", sexo: "Feminino", situacao: "Ativo",
+    liderDoLider: "Levi Viana", cargo: "Coordenador de Projetos", filial: "Senior Filial SPI",
+    diretoria: "Diretoria de Serviços", diretoOuIndireto: "Indireto", nivelCarreira: "M1",
+    tempoComoLider: "2 anos, 3 meses", tempoCargoAtual: "2 anos, 3 meses", qtdeColabsDiretos2025: 6, qtdeColabsIndiretos2025: 0,
+    admissoes2024: 1, admissoes2025: 1, ultimoQuadranteReview: "Desempenho abaixo do esperado",
+    atingimentoCR2024: 80.06, atingimentoCR2025: 130.10, mapeadoSucessor2024: "Não", mapeadoSucessor2025: "Não",
+    participantePoolMentoria: "", gptwENPS2024: 100, gptwENPS2025: null, gptwLNPS2025: null,
+    gptwEstagioLideranca2025: "", moodsENPS: [null, null, 67, 33, 33, 0, 50, 50, 60],
+    mediaENPSGestor2025: 42, percentDesligamentos2024: 20, percentDesligamentos2025: 17,
+    indicados: [{ nome: "Samuel Mendes", cargoAtual: "Gerente de Projetos II", nivelCarreira: "P2", prontidao: "De 2 a 3 anos", diretoria: "Diretoria de Serviços", status: "Ativo" }],
+    jobRotation: null
+  },
+  {
+    id: "3", nome: "Pedro da Luz", cadastro: "4885", sexo: "Masculino", situacao: "Ativo",
+    liderDoLider: "Isabela Garcia", cargo: "Coordenador de Projetos", filial: "Senior Filial SPI",
+    diretoria: "Diretoria de Serviços", diretoOuIndireto: "Indireto", nivelCarreira: "M1",
+    tempoComoLider: "2 anos, 3 meses", tempoCargoAtual: "2 anos, 3 meses", qtdeColabsDiretos2025: 12, qtdeColabsIndiretos2025: 0,
+    admissoes2024: 3, admissoes2025: 2, ultimoQuadranteReview: "Desempenho adequado",
+    atingimentoCR2024: 114.22, atingimentoCR2025: 131.21, mapeadoSucessor2024: "Não", mapeadoSucessor2025: "Sim",
+    participantePoolMentoria: "", gptwENPS2024: 93, gptwENPS2025: 100, gptwLNPS2025: 100,
+    gptwEstagioLideranca2025: "O Líder For All", moodsENPS: [100, 93, 85, 100, 100, 100, 100, 100, 100],
+    mediaENPSGestor2025: 97, percentDesligamentos2024: 0, percentDesligamentos2025: 8,
+    indicados: [
+      { nome: "Leandro da Luz", cargoAtual: "Executivo Técnico de Negócios III", nivelCarreira: "S3", prontidao: "De 1 a 2 anos", diretoria: "Diretoria de Serviços", status: "Ativo" },
+      { nome: "Davi Peixoto", cargoAtual: "Gerente de Projetos III", nivelCarreira: "P3", prontidao: "Imediato", diretoria: "Diretoria de Serviços", status: "Ativo" }
+    ],
+    jobRotation: null
+  },
+  {
+    id: "4", nome: "Emanuella Pimenta", cadastro: "5041", sexo: "Masculino", situacao: "Ativo",
+    liderDoLider: "Valentim Alves", cargo: "IT Corporate Executive Manager", filial: "Senior Matriz",
+    diretoria: "Diretoria de Desenvolvimento", diretoOuIndireto: "Direto", nivelCarreira: "M3",
+    tempoComoLider: "5 anos, 5 meses", tempoCargoAtual: "3 anos, 5 meses", qtdeColabsDiretos2025: 5, qtdeColabsIndiretos2025: 53,
+    admissoes2024: 3, admissoes2025: 1, ultimoQuadranteReview: "Alto potencial e desempenho acima do esperado",
+    atingimentoCR2024: 100.31, atingimentoCR2025: 136.75, mapeadoSucessor2024: "Sim", mapeadoSucessor2025: "Sim",
+    participantePoolMentoria: "Mentoria", gptwENPS2024: null, gptwENPS2025: null, gptwLNPS2025: null,
+    gptwEstagioLideranca2025: "", moodsENPS: [100, 75, 75, 75, 75, 100, 67, 100],
+    mediaENPSGestor2025: 83, percentDesligamentos2024: 0, percentDesligamentos2025: 0,
+    indicados: [{ nome: "Dr. Carlos Eduardo das Neves", cargoAtual: "Cloud & Infrastructure Manager", nivelCarreira: "M2", prontidao: "De 2 a 3 anos", diretoria: "Diretoria de Desenvolvimento", status: "Ativo" }],
+    jobRotation: null
+  },
+  {
+    id: "5", nome: "Sra. Sofia Cavalcante", cadastro: "19051", sexo: "Masculino", situacao: "Ativo",
+    liderDoLider: "Ágatha Rodrigues", cargo: "Diretor Executivo de Novos Negocios", filial: "Senior Matriz",
+    diretoria: "Diretoria de Novos Negócios", diretoOuIndireto: "CE", nivelCarreira: "E2",
+    tempoComoLider: "14 anos, 1 meses", tempoCargoAtual: "7 anos, 5 meses", qtdeColabsDiretos2025: 11, qtdeColabsIndiretos2025: 395,
+    admissoes2024: 4, admissoes2025: 0, ultimoQuadranteReview: "",
+    atingimentoCR2024: 117.53, atingimentoCR2025: null, mapeadoSucessor2024: "Não", mapeadoSucessor2025: "Não",
+    participantePoolMentoria: "Mentoria", gptwENPS2024: 100, gptwENPS2025: 100, gptwLNPS2025: 100,
+    gptwEstagioLideranca2025: "O Líder For All", moodsENPS: [83, 75, 100, 100, 100, 100, 80, 100, 100],
+    mediaENPSGestor2025: 93, percentDesligamentos2024: 0, percentDesligamentos2025: 0,
+    indicados: [
+      { nome: "Ana Laura Pastor", cargoAtual: "Diretor de Negócios", nivelCarreira: "E1", prontidao: "Imediato", diretoria: "Diretoria de Mercado", status: "Ativo" },
+      { nome: "Sra. Hadassa da Cunha", cargoAtual: "Diretor Comercial", nivelCarreira: "E1", prontidao: "De 3 a 4 anos", diretoria: "Diretoria de Novos Negócios", status: "Ativo" }
+    ],
+    jobRotation: null
+  },
+  {
+    id: "6", nome: "Gabriel Fernandes", cadastro: "5862", sexo: "Feminino", situacao: "Ativo",
+    liderDoLider: "Maria Alice Santos", cargo: "Gerente de Vendas", filial: "Senior Filial SP",
+    diretoria: "Diretoria de Mercado", diretoOuIndireto: "Indireto", nivelCarreira: "M2",
+    tempoComoLider: "4 anos, 7 meses", tempoCargoAtual: "11 meses", qtdeColabsDiretos2025: 9, qtdeColabsIndiretos2025: 0,
+    admissoes2024: 2, admissoes2025: 3, ultimoQuadranteReview: "Alto potencial e desempenho esperado",
+    atingimentoCR2024: 73.33, atingimentoCR2025: 119.47, mapeadoSucessor2024: "Sim", mapeadoSucessor2025: "Sim",
+    participantePoolMentoria: "Mentoria", gptwENPS2024: null, gptwENPS2025: 100, gptwLNPS2025: 100,
+    gptwEstagioLideranca2025: "O Líder For All", moodsENPS: [null, 100, 100, 83, 86, 88, 78, 100, 100],
+    mediaENPSGestor2025: 92, percentDesligamentos2024: 33, percentDesligamentos2025: 22,
+    indicados: [{ nome: "Júlia Barbosa", cargoAtual: "Executivo de Novos Negócios III", nivelCarreira: "S3", prontidao: "De 1 a 2 anos", diretoria: "Diretoria de Mercado", status: "Ativo" }],
+    jobRotation: { nomeLider: "Valentina Nunes", nivelCarreira: "M2", status: "" }
+  },
+  {
+    id: "7", nome: "Sr. Raul Fernandes", cadastro: "5748", sexo: "Masculino", situacao: "Ativo",
+    liderDoLider: "Hadassa Castro", cargo: "Software Development Team Lead", filial: "Senior Matriz",
+    diretoria: "Diretoria de Serviços", diretoOuIndireto: "Indireto", nivelCarreira: "M1",
+    tempoComoLider: "2 anos, 1 meses", tempoCargoAtual: "2 anos, 1 meses", qtdeColabsDiretos2025: 16, qtdeColabsIndiretos2025: 0,
+    admissoes2024: 4, admissoes2025: 3, ultimoQuadranteReview: "Desempenho diferenciado",
+    atingimentoCR2024: 94.67, atingimentoCR2025: 111.37, mapeadoSucessor2024: "Não", mapeadoSucessor2025: "Não",
+    participantePoolMentoria: "", gptwENPS2024: 77, gptwENPS2025: 100, gptwLNPS2025: 95,
+    gptwEstagioLideranca2025: "O Líder For All", moodsENPS: [89, 88, 100, 75, 100, 70, 88, 88, 100],
+    mediaENPSGestor2025: 89, percentDesligamentos2024: 30, percentDesligamentos2025: 19,
+    indicados: [{ nome: "Nina Pires", cargoAtual: "Business Analyst III", nivelCarreira: "P3", prontidao: "Imediato", diretoria: "Diretoria de Serviços", status: "Ativo" }],
+    jobRotation: null
+  },
+  {
+    id: "8", nome: "Thomas Sales", cadastro: "4972", sexo: "Masculino", situacao: "Ativo",
+    liderDoLider: "Dante Farias", cargo: "Diretor de Negócios", filial: "Sythex Filial SP",
+    diretoria: "Diretoria de Mercado", diretoOuIndireto: "Direto", nivelCarreira: "E1",
+    tempoComoLider: "5 anos, 9 meses", tempoCargoAtual: "3 meses", qtdeColabsDiretos2025: 2, qtdeColabsIndiretos2025: 47,
+    admissoes2024: 2, admissoes2025: 0, ultimoQuadranteReview: "Desempenho diferenciado",
+    atingimentoCR2024: 86.81, atingimentoCR2025: 138.99, mapeadoSucessor2024: "Sim", mapeadoSucessor2025: "Sim",
+    participantePoolMentoria: "Mentoria", gptwENPS2024: 100, gptwENPS2025: 50, gptwLNPS2025: 50,
+    gptwEstagioLideranca2025: "O Bom Líder", moodsENPS: [null, 100, 75, 88, 86, 100, 56],
+    mediaENPSGestor2025: 84, percentDesligamentos2024: 0, percentDesligamentos2025: 0,
+    indicados: [
+      { nome: "João Gabriel Casa Grande", cargoAtual: "Coordenador de Vendas", nivelCarreira: "M1", prontidao: "imediato", diretoria: "Diretoria de Mercado", status: "Ativo" },
+      { nome: "Agatha Pimenta", cargoAtual: "Coordenador de Vendas", nivelCarreira: "M1", prontidao: "De 3 a 4 anos", diretoria: "Diretoria de Mercado", status: "Ativo" }
+    ],
+    jobRotation: { nomeLider: "Clara Fonseca", nivelCarreira: "M2", status: "" }
+  },
+  {
+    id: "9", nome: "Oliver Caldeira", cadastro: "667", sexo: "Feminino", situacao: "Ativo",
+    liderDoLider: "Dra. Aurora Borges", cargo: "Gte Universidade Corporativa", filial: "Senior Matriz",
+    diretoria: "Diretoria de Pessoas e Organização", diretoOuIndireto: "Direto", nivelCarreira: "M2",
+    tempoComoLider: "14 anos, 3 meses", tempoCargoAtual: "3 anos, 5 meses", qtdeColabsDiretos2025: 26, qtdeColabsIndiretos2025: 0,
+    admissoes2024: 8, admissoes2025: 1, ultimoQuadranteReview: "",
+    atingimentoCR2024: 131.27, atingimentoCR2025: 146.74, mapeadoSucessor2024: "Não", mapeadoSucessor2025: "Não",
+    participantePoolMentoria: "", gptwENPS2024: 72, gptwENPS2025: 82, gptwLNPS2025: 36,
+    gptwEstagioLideranca2025: "O Líder Inconsciente", moodsENPS: [89, 76, 71, 73, 88, 68, 88, 57, 94],
+    mediaENPSGestor2025: 78, percentDesligamentos2024: 0, percentDesligamentos2025: 0,
+    indicados: [{ nome: "Sr. João Guilherme Souza", cargoAtual: "Coordenador de Processos", nivelCarreira: "M1", prontidao: "De 1 a 2 anos", diretoria: "Diretoria Pessoas e Organização", status: "Ativo" }],
+    jobRotation: null
+  },
+  {
+    id: "10", nome: "Camila Mendes", cadastro: "7699", sexo: "Masculino", situacao: "Ativo",
+    liderDoLider: "Joaquim Fogaça", cargo: "Gerente Financeiro", filial: "Senior Matriz",
+    diretoria: "Diretoria Administativo e Financeiro", diretoOuIndireto: "Direto", nivelCarreira: "M2",
+    tempoComoLider: "2 anos", tempoCargoAtual: "2 anos", qtdeColabsDiretos2025: 20, qtdeColabsIndiretos2025: 52,
+    admissoes2024: 13, admissoes2025: 8, ultimoQuadranteReview: "Desempenho abaixo do esperado",
+    atingimentoCR2024: 99.50, atingimentoCR2025: 45.20, mapeadoSucessor2024: "Não", mapeadoSucessor2025: "Não",
+    participantePoolMentoria: "", gptwENPS2024: 25, gptwENPS2025: 33, gptwLNPS2025: -25,
+    gptwEstagioLideranca2025: "O Líder Inconsciente", moodsENPS: [53, 38, 47, 47, 54, 54, 46, 29, 75],
+    mediaENPSGestor2025: 49, percentDesligamentos2024: 22, percentDesligamentos2025: 10,
+    indicados: [{ nome: "João Lucas Ferreira", cargoAtual: "Coordenador de Faturamento", nivelCarreira: "M1", prontidao: "De 1 a 2 anos", diretoria: "Diretoria Adm e Financeiro", status: "Ativo" }],
+    jobRotation: null
+  },
+  {
+    id: "11", nome: "Ester Fogaça", cadastro: "5110", sexo: "Masculino", situacao: "Ativo",
+    liderDoLider: "Valentina Nunes", cargo: "Coordenador de Vendas", filial: "Senior Filial MT",
+    diretoria: "Diretoria de Mercado", diretoOuIndireto: "Indireto", nivelCarreira: "M1",
+    tempoComoLider: "10 meses", tempoCargoAtual: "10 meses", qtdeColabsDiretos2025: 6, qtdeColabsIndiretos2025: 0,
+    admissoes2024: 1, admissoes2025: 3, ultimoQuadranteReview: "",
+    atingimentoCR2024: null, atingimentoCR2025: 94.80, mapeadoSucessor2024: "Não", mapeadoSucessor2025: "Sim",
+    participantePoolMentoria: "Capacitação para o pool", gptwENPS2024: null, gptwENPS2025: 40, gptwLNPS2025: 60,
+    gptwEstagioLideranca2025: "O Bom Líder", moodsENPS: [null, -40, 17, 67, 50, 83, 75, 75, 83],
+    mediaENPSGestor2025: 51, percentDesligamentos2024: 0, percentDesligamentos2025: 0,
+    indicados: [{ nome: "Bruno Oliveira", cargoAtual: "Executivo Contas - Novos Negócios III", nivelCarreira: "S3", prontidao: "De 1 a 2 anos", diretoria: "Diretoria de Novos Negócios", status: "Ativo" }],
+    jobRotation: null
+  },
+  {
+    id: "12", nome: "Anthony Cassiano", cadastro: "1877", sexo: "Masculino", situacao: "Ativo",
+    liderDoLider: "Mariah Barbosa", cargo: "Head of Product", filial: "Senior Matriz",
+    diretoria: "Diretoria de Marketing e Produto", diretoOuIndireto: "Direto", nivelCarreira: "M2",
+    tempoComoLider: "9 anos, 10 meses", tempoCargoAtual: "3 anos, 5 meses", qtdeColabsDiretos2025: 7, qtdeColabsIndiretos2025: 11,
+    admissoes2024: 1, admissoes2025: 0, ultimoQuadranteReview: "Desempenho diferenciado",
+    atingimentoCR2024: 121.49, atingimentoCR2025: 127.42, mapeadoSucessor2024: "Sim", mapeadoSucessor2025: "Não",
+    participantePoolMentoria: "", gptwENPS2024: 71, gptwENPS2025: null, gptwLNPS2025: null,
+    gptwEstagioLideranca2025: "", moodsENPS: [null, null, null, null, null, null, null, 100, 100],
+    mediaENPSGestor2025: 100, percentDesligamentos2024: 0, percentDesligamentos2025: 0,
+    indicados: [], jobRotation: { nomeLider: "Dom Cirino", nivelCarreira: "M2", status: "" }
+  }
+];
 
-const diretorias = ['Tecnologia', 'Comercial', 'Operações', 'RH', 'Financeiro', 'Marketing', 'Jurídico'];
-const cargos = ['Coordenador de TI', 'Gerente Comercial', 'Diretor de Operações', 'Gerente de RH', 'Coordenador Financeiro', 'Gerente de Marketing', 'Gerente de Projetos', 'Diretor Comercial', 'Coordenador de Vendas', 'Gerente de Produto'];
-const nomes = ['Ana Silva', 'Bruno Costa', 'Carlos Mendes', 'Diana Oliveira', 'Eduardo Santos', 'Fernanda Lima', 'Gabriel Rocha', 'Helena Souza', 'Igor Ferreira', 'Julia Martins', 'Lucas Almeida', 'Marina Ribeiro', 'Nelson Dias', 'Olivia Nascimento', 'Pedro Araújo', 'Quintino Barros', 'Renata Campos', 'Sergio Vieira', 'Tatiana Moreira', 'Ulisses Gomes', 'Vanessa Pinto', 'Wagner Cruz', 'Ximena Torres', 'Yago Neves', 'Zelia Cardoso'];
-
-function randomFromArray<T>(arr: T[]): T {
-  return arr[Math.floor(Math.random() * arr.length)];
-}
-
-function randomNumber(min: number, max: number): number {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-function randomFloat(min: number, max: number): number {
-  return Math.round((Math.random() * (max - min) + min) * 10) / 10;
-}
-
-function generateMoodsData(): number[] {
-  return Array.from({ length: 12 }, () => randomNumber(40, 95));
-}
-
-function generateIndicados(): Indicado[] {
-  const count = randomNumber(0, 3);
-  return Array.from({ length: count }, () => ({
-    nome: randomFromArray(nomes),
-    cargo: randomFromArray(cargos),
-    status: randomFromArray(['Ativo', 'Inativo']) as 'Ativo' | 'Inativo',
-    prontidao: randomFromArray(['Ready Now', 'Ready Soon', 'Ready Later']) as 'Ready Now' | 'Ready Soon' | 'Ready Later',
-    enps: randomNumber(30, 95),
-    atingimentoCR: randomNumber(60, 120),
-    nivelCarreira: randomFromArray(['Pleno', 'Sênior', 'Especialista', 'Coordenador']),
-  }));
-}
-
-export function generateLeaders(count: number = 150): Leader[] {
-  return Array.from({ length: count }, (_, i) => ({
-    id: `L${String(i + 1).padStart(4, '0')}`,
-    nome: nomes[i % nomes.length] + (i >= nomes.length ? ` ${Math.floor(i / nomes.length) + 1}` : ''),
-    cadastro: `C${String(randomNumber(10000, 99999))}`,
-    liderDeSiMesmo: Math.random() > 0.7,
-    liderDosOutros: Math.random() > 0.3,
-    liderCorporativo: Math.random() > 0.8,
-    impacto: randomFromArray(['Alto', 'Médio', 'Baixo']) as 'Alto' | 'Médio' | 'Baixo',
-    sexo: randomFromArray(['M', 'F']) as 'M' | 'F',
-    situacao: randomFromArray(['Ativo', 'Ativo', 'Ativo', 'Inativo', 'Afastado']) as 'Ativo' | 'Inativo' | 'Afastado',
-    liderDoLider: nomes[randomNumber(0, nomes.length - 1)],
-    dataAdmissao: `${randomNumber(2015, 2023)}-${String(randomNumber(1, 12)).padStart(2, '0')}-${String(randomNumber(1, 28)).padStart(2, '0')}`,
-    cargo: randomFromArray(cargos),
-    filial: randomFromArray(['São Paulo', 'Rio de Janeiro', 'Blumenau', 'Curitiba', 'Porto Alegre', 'Belo Horizonte']),
-    diretoria: randomFromArray(diretorias),
-    diretoOuIndireto: randomFromArray(['Direto', 'Indireto']) as 'Direto' | 'Indireto',
-    ce: randomFromArray(['CE1', 'CE2', 'CE3']),
-    nivelCarreira: randomFromArray(['Coordenador', 'Gerente', 'Diretor', 'Especialista']) as Leader['nivelCarreira'],
-    dataVirouLider: `${randomNumber(2018, 2024)}-${String(randomNumber(1, 12)).padStart(2, '0')}-${String(randomNumber(1, 28)).padStart(2, '0')}`,
-    tempoComoLider: randomFloat(0.5, 8),
-    primeiraLideranca: Math.random() > 0.5,
-    comoSetornouLider: randomFromArray(['Promoção Interna', 'Contratação Externa', 'Sucessão', 'Reestruturação']),
-    origemLider: randomFromArray(['Interno', 'Externo']),
-    tempoNoCargoAtual: randomFloat(0.5, 5),
-    qtdeColabsDiretos2025: randomNumber(3, 25),
-    qtdeColabsIndiretos2025: randomNumber(0, 50),
-    admissoes2024: randomNumber(0, 10),
-    admissoes2025: randomNumber(0, 8),
-    enpsOnboarding2024: randomNumber(40, 95),
-    enpsOnboarding2025: randomNumber(45, 98),
-    leadershipReview2023: randomFromArray(['A1', 'A2', 'A3', 'B1', 'B2', 'B3', 'C1', 'C2', 'C3']),
-    leadershipReview2025: randomFromArray(['A1', 'A2', 'A3', 'B1', 'B2', 'B3', 'C1', 'C2', 'C3']),
-    avalCompetencias2024: randomFromArray(['A', 'B', 'C', 'D', 'E']) as Leader['avalCompetencias2024'],
-    avalCompetenciasFoco2024: randomFromArray(['A', 'B', 'C', 'D', 'E']) as Leader['avalCompetenciasFoco2024'],
-    percAvalConcluidas2024: randomNumber(60, 100),
-    qtdeAvaliacoes2025: randomNumber(5, 30),
-    avalEmAndamento2025: randomNumber(0, 10),
-    avalConcluida2025: randomNumber(5, 25),
-    percAvalAndamento2025: randomNumber(50, 100),
-    percAvalConcluidas2025: randomNumber(60, 100),
-    atingimentoCR2024: randomNumber(70, 130),
-    atingimentoCR2025: randomNumber(75, 125),
-    desejoCarreira: randomFromArray(['Crescimento vertical', 'Crescimento lateral', 'Estabilidade', 'Empreendedorismo']),
-    mapeadoSucessor2024: Math.random() > 0.6,
-    mapeadoSucessor2025: Math.random() > 0.5,
-    participanteLiderAcao: Math.random() > 0.4,
-    participantePool: Math.random() > 0.6,
-    statusLeaderStart: randomFromArray(['Concluído', 'Em andamento', 'Não iniciado']) as Leader['statusLeaderStart'],
-    modulosLeadershipJourney: randomNumber(0, 12),
-    percLeadershipJourney: randomNumber(0, 100),
-    gptwENPS2024: randomNumber(35, 90),
-    gptwENPS2025: randomNumber(40, 95),
-    gptwLNPS2025: randomNumber(30, 85),
-    estagioLideranca2024: randomFromArray(['Inicial', 'Em Desenvolvimento', 'Consolidado', 'Referência']) as Leader['estagioLideranca2024'],
-    estagioLideranca2025: randomFromArray(['Inicial', 'Em Desenvolvimento', 'Consolidado', 'Referência']) as Leader['estagioLideranca2025'],
-    gptwIVR2024: randomNumber(60, 95),
-    gptwIVR2025: randomNumber(65, 98),
-    moodsENPS2025: generateMoodsData(),
-    mediaENPS: randomNumber(45, 90),
-    percFeedbacks2024: randomNumber(50, 100),
-    percFeedbacks2025: randomNumber(55, 100),
-    qtdeFeedbacksHCM: randomNumber(10, 100),
-    percAtingimentoFeedbacks: randomNumber(60, 100),
-    percDesligamentosPorLider: randomFloat(0, 25),
-    pesquisaDesligamentoENPS: randomNumber(20, 80),
-    indicados: generateIndicados(),
-    jobRotation: Math.random() > 0.7 ? {
-      indicado: true,
-      status: randomFromArray(['Aprovado', 'Em análise', 'Recusado', 'Concluído']) as JobRotation['status'],
-      tempoNoCargo: randomFloat(0.5, 4),
-    } : undefined,
-    prontidaoSucessao: randomFromArray(['Ready Now', 'Ready Soon', 'Ready Later', 'Não Mapeado']) as Leader['prontidaoSucessao'],
-  }));
-}
-
-export const leaders = generateLeaders(150);
-
-// Aggregated statistics
-export function getStats(data: Leader[]) {
-  const total = data.length;
-  const ativos = data.filter(l => l.situacao === 'Ativo').length;
+// Statistics functions
+export const getStatistics = () => {
+  const total = allLeaders.length;
+  const byLevel = allLeaders.reduce((acc, l) => { acc[l.nivelCarreira] = (acc[l.nivelCarreira] || 0) + 1; return acc; }, {} as Record<string, number>);
+  const byDir = allLeaders.reduce((acc, l) => { acc[l.diretoria] = (acc[l.diretoria] || 0) + 1; return acc; }, {} as Record<string, number>);
+  const succ2024 = allLeaders.filter(l => l.mapeadoSucessor2024 === "Sim").length;
+  const succ2025 = allLeaders.filter(l => l.mapeadoSucessor2025 === "Sim").length;
+  const enps24 = allLeaders.map(l => l.gptwENPS2024).filter((v): v is number => v !== null);
+  const enps25 = allLeaders.map(l => l.gptwENPS2025).filter((v): v is number => v !== null);
+  const cr24 = allLeaders.map(l => l.atingimentoCR2024).filter((v): v is number => v !== null);
+  const cr25 = allLeaders.map(l => l.atingimentoCR2025).filter((v): v is number => v !== null);
+  const indicados = allLeaders.reduce((acc, l) => acc + l.indicados.length, 0);
+  const risco = allLeaders.filter(l => (l.gptwENPS2025 !== null && l.gptwENPS2025 < 50) || (l.atingimentoCR2025 !== null && l.atingimentoCR2025 < 80)).length;
   
-  const porNivel = data.reduce((acc, l) => {
-    acc[l.nivelCarreira] = (acc[l.nivelCarreira] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
-
-  const prontidao = data.reduce((acc, l) => {
-    acc[l.prontidaoSucessao] = (acc[l.prontidaoSucessao] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
-
-  const sucessores2024 = data.filter(l => l.mapeadoSucessor2024).length;
-  const sucessores2025 = data.filter(l => l.mapeadoSucessor2025).length;
-
-  const mediaENPSLideres = Math.round(data.reduce((acc, l) => acc + l.gptwENPS2025, 0) / total);
-  const mediaENPSTimes = Math.round(data.reduce((acc, l) => acc + l.mediaENPS, 0) / total);
-
-  const participacaoLiderAcao = data.filter(l => l.participanteLiderAcao).length;
-  const participacaoPool = data.filter(l => l.participantePool).length;
-
-  const lideresRisco = data.filter(l => l.gptwENPS2025 < 50 || l.atingimentoCR2025 < 80).length;
-
   return {
-    total,
-    ativos,
-    porNivel,
-    prontidao,
-    sucessores2024,
-    sucessores2025,
-    mediaENPSLideres,
-    mediaENPSTimes,
-    participacaoLiderAcao,
-    participacaoPool,
-    lideresRisco,
-    percSucessores2024: Math.round((sucessores2024 / total) * 100),
-    percSucessores2025: Math.round((sucessores2025 / total) * 100),
-    percLideresRisco: Math.round((lideresRisco / total) * 100),
-    percParticipacaoPrograma: Math.round(((participacaoLiderAcao + participacaoPool) / (total * 2)) * 100),
+    totalLeaders: total, byCareerLevel: byLevel, byDirectorate: byDir,
+    mappedAsSuccessor2024: succ2024, mappedAsSuccessor2025: succ2025,
+    avgENPS2024: enps24.length ? Math.round(enps24.reduce((a,b) => a+b, 0) / enps24.length) : 0,
+    avgENPS2025: enps25.length ? Math.round(enps25.reduce((a,b) => a+b, 0) / enps25.length) : 0,
+    avgCR2024: cr24.length ? Math.round(cr24.reduce((a,b) => a+b, 0) / cr24.length * 100) / 100 : 0,
+    avgCR2025: cr25.length ? Math.round(cr25.reduce((a,b) => a+b, 0) / cr25.length * 100) / 100 : 0,
+    totalIndicados: indicados, highRiskLeaders: risco,
+    inMentoring: allLeaders.filter(l => l.participantePoolMentoria?.includes("Mentoria")).length
   };
-}
+};
 
-export const stats = getStats(leaders);
+export const getENPSByMonth = () => {
+  const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set'];
+  return months.map((m, i) => {
+    const vals = allLeaders.map(l => l.moodsENPS[i]).filter((v): v is number => v !== null);
+    return { month: m, enps: vals.length ? Math.round(vals.reduce((a,b) => a+b, 0) / vals.length) : null };
+  }).filter(m => m.enps !== null);
+};
 
-// Top performers and risk leaders
-export function getTopPerformers(data: Leader[], count: number = 10): Leader[] {
-  return [...data]
-    .filter(l => l.situacao === 'Ativo')
-    .sort((a, b) => {
-      const scoreA = a.atingimentoCR2025 + a.gptwENPS2025 + (a.leadershipReview2025.startsWith('A') ? 30 : a.leadershipReview2025.startsWith('B') ? 20 : 10);
-      const scoreB = b.atingimentoCR2025 + b.gptwENPS2025 + (b.leadershipReview2025.startsWith('A') ? 30 : b.leadershipReview2025.startsWith('B') ? 20 : 10);
-      return scoreB - scoreA;
-    })
-    .slice(0, count);
-}
+export const getLeadershipReviewDistribution = () => {
+  const dist = allLeaders.filter(l => l.ultimoQuadranteReview).reduce((acc, l) => {
+    acc[l.ultimoQuadranteReview] = (acc[l.ultimoQuadranteReview] || 0) + 1; return acc;
+  }, {} as Record<string, number>);
+  return Object.entries(dist).map(([name, value]) => ({ name: name.length > 20 ? name.substring(0, 20) + '...' : name, fullName: name, value }));
+};
 
-export function getRiskLeaders(data: Leader[], count: number = 10): Leader[] {
-  return [...data]
-    .filter(l => l.situacao === 'Ativo')
-    .sort((a, b) => {
-      const riskA = (100 - a.gptwENPS2025) + (100 - a.atingimentoCR2025) + a.percDesligamentosPorLider;
-      const riskB = (100 - b.gptwENPS2025) + (100 - b.atingimentoCR2025) + b.percDesligamentosPorLider;
-      return riskB - riskA;
-    })
-    .slice(0, count);
-}
+export const getSuccessionPipeline = () => {
+  const pipe = allLeaders.reduce((acc, l) => {
+    if (!acc[l.diretoria]) acc[l.diretoria] = { lideres: 0, indicados: 0, prontoImediato: 0 };
+    acc[l.diretoria].lideres++; acc[l.diretoria].indicados += l.indicados.length;
+    l.indicados.forEach(ind => { if (ind.prontidao.toLowerCase().includes('imediato')) acc[l.diretoria].prontoImediato++; });
+    return acc;
+  }, {} as Record<string, { lideres: number; indicados: number; prontoImediato: number }>);
+  return Object.entries(pipe).map(([d, data]) => ({ diretoria: d.replace('Diretoria de ', '').replace('Diretoria ', ''), ...data }));
+};
 
-// Data by diretoria
-export function getDataByDiretoria(data: Leader[]) {
-  return diretorias.map(d => {
-    const lideres = data.filter(l => l.diretoria === d);
-    return {
-      diretoria: d,
-      totalLideres: lideres.length,
-      mediaENPS: Math.round(lideres.reduce((acc, l) => acc + l.gptwENPS2025, 0) / (lideres.length || 1)),
-      mediaCR: Math.round(lideres.reduce((acc, l) => acc + l.atingimentoCR2025, 0) / (lideres.length || 1)),
-      sucessores: lideres.filter(l => l.mapeadoSucessor2025).length,
-      risco: lideres.filter(l => l.gptwENPS2025 < 50 || l.atingimentoCR2025 < 80).length,
-    };
-  });
-}
+export const getTopPerformers = () => allLeaders.filter(l => l.atingimentoCR2025 !== null && l.gptwENPS2025 !== null)
+  .map(l => ({ nome: l.nome, cargo: l.cargo, diretoria: l.diretoria, cr2025: l.atingimentoCR2025, enps2025: l.gptwENPS2025, score: ((l.atingimentoCR2025||0) + (l.gptwENPS2025||0)) / 2 }))
+  .sort((a, b) => (b.score||0) - (a.score||0)).slice(0, 10);
 
-// ENPS evolution data
-export function getENPSEvolution() {
-  const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-  return months.map((month, i) => ({
-    month,
-    lideres: randomNumber(60, 85),
-    times: randomNumber(55, 80),
-  }));
-}
+export const getHighRiskLeaders = () => allLeaders
+  .filter(l => (l.gptwENPS2025 !== null && l.gptwENPS2025 < 50) || (l.atingimentoCR2025 !== null && l.atingimentoCR2025 < 80) || (l.percentDesligamentos2025 || 0) > 15)
+  .map(l => ({ nome: l.nome, cargo: l.cargo, diretoria: l.diretoria, enps2025: l.gptwENPS2025, cr2025: l.atingimentoCR2025, turnover: l.percentDesligamentos2025,
+    riskFactors: [l.gptwENPS2025 !== null && l.gptwENPS2025 < 50 ? 'ENPS Baixo' : null, l.atingimentoCR2025 !== null && l.atingimentoCR2025 < 80 ? 'CR Baixo' : null, (l.percentDesligamentos2025 || 0) > 15 ? 'Alta Rotatividade' : null].filter(Boolean) }))
+  .slice(0, 10);
 
-// Leadership Review distribution
-export function getLeadershipReviewDistribution(data: Leader[]) {
-  const quadrants = ['A1', 'A2', 'A3', 'B1', 'B2', 'B3', 'C1', 'C2', 'C3'];
-  return quadrants.map(q => ({
-    quadrant: q,
-    count: data.filter(l => l.leadershipReview2025 === q).length,
-  }));
-}
+export const getJobRotationData = () => allLeaders.filter(l => l.jobRotation !== null).map(l => ({ lider: l.nome, cargo: l.cargo, diretoria: l.diretoria, nivelCarreira: l.nivelCarreira, tempoCargoAtual: l.tempoCargoAtual, jobRotation: l.jobRotation }));
 
-export { diretorias, cargos, nomes };
+export const getDiretorias = () => [...new Set(allLeaders.map(l => l.diretoria))].sort();
+export const getNiveisCarreira = () => [...new Set(allLeaders.map(l => l.nivelCarreira))].sort();

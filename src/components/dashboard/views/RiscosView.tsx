@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { KPICard } from '../KPICard';
 import { AlertTriangle, TrendingDown, UserMinus, XCircle, ShieldAlert, Lightbulb } from 'lucide-react';
-import { Leader, diretorias, getRiskLeaders } from '@/data/mockData';
+import { Leader, getDiretorias, getHighRiskLeaders } from '@/data/mockData';
 import { cn } from '@/lib/utils';
 
 interface RiscosViewProps {
@@ -9,13 +9,18 @@ interface RiscosViewProps {
 }
 
 export function RiscosView({ data }: RiscosViewProps) {
+  const diretorias = getDiretorias();
+  
   // Risk calculations
   const riskAnalysis = useMemo(() => {
-    const lowENPS = data.filter(l => l.gptwENPS2025 < 50);
-    const lowCR = data.filter(l => l.atingimentoCR2025 < 80);
-    const highTurnover = data.filter(l => l.percDesligamentosPorLider > 15);
-    const noSuccessor = data.filter(l => l.indicados.length === 0 && l.nivelCarreira !== 'Coordenador');
-    const criticalRisk = data.filter(l => l.gptwENPS2025 < 50 && l.atingimentoCR2025 < 80);
+    const lowENPS = data.filter(l => l.gptwENPS2025 !== null && l.gptwENPS2025 < 50);
+    const lowCR = data.filter(l => l.atingimentoCR2025 !== null && l.atingimentoCR2025 < 80);
+    const highTurnover = data.filter(l => (l.percentDesligamentos2025 || 0) > 15);
+    const noSuccessor = data.filter(l => l.indicados.length === 0 && l.nivelCarreira !== 'M1');
+    const criticalRisk = data.filter(l => 
+      (l.gptwENPS2025 !== null && l.gptwENPS2025 < 50) && 
+      (l.atingimentoCR2025 !== null && l.atingimentoCR2025 < 80)
+    );
     
     return {
       lowENPS,
@@ -31,22 +36,24 @@ export function RiscosView({ data }: RiscosViewProps) {
     return diretorias.map(d => {
       const lideres = data.filter(l => l.diretoria === d);
       const riscos = lideres.filter(l => 
-        l.gptwENPS2025 < 50 || l.atingimentoCR2025 < 80 || l.percDesligamentosPorLider > 15
+        (l.gptwENPS2025 !== null && l.gptwENPS2025 < 50) || 
+        (l.atingimentoCR2025 !== null && l.atingimentoCR2025 < 80) || 
+        (l.percentDesligamentos2025 || 0) > 15
       );
       const semSucessor = lideres.filter(l => l.indicados.length === 0);
       
       return {
-        diretoria: d,
+        diretoria: d.replace('Diretoria de ', '').replace('Diretoria ', ''),
         total: lideres.length,
         riscos: riscos.length,
         semSucessor: semSucessor.length,
-        riskScore: Math.round(((riscos.length + semSucessor.length) / (lideres.length * 2 || 1)) * 100),
+        riskScore: lideres.length > 0 ? Math.round(((riscos.length + semSucessor.length) / (lideres.length * 2)) * 100) : 0,
       };
     }).sort((a, b) => b.riskScore - a.riskScore);
-  }, [data]);
+  }, [data, diretorias]);
 
   // Top risk leaders
-  const topRiskLeaders = useMemo(() => getRiskLeaders(data, 15), [data]);
+  const topRiskLeaders = useMemo(() => getHighRiskLeaders(), []);
 
   // Auto insights
   const insights = useMemo(() => {
@@ -75,7 +82,10 @@ export function RiscosView({ data }: RiscosViewProps) {
     }
 
     // ENPS decline
-    const enpsDecline = data.filter(l => l.gptwENPS2025 < l.gptwENPS2024).length;
+    const enpsDecline = data.filter(l => 
+      l.gptwENPS2024 !== null && l.gptwENPS2025 !== null && 
+      l.gptwENPS2025 < l.gptwENPS2024
+    ).length;
     if (enpsDecline > data.length * 0.4) {
       items.push({
         type: 'warning',
@@ -86,12 +96,15 @@ export function RiscosView({ data }: RiscosViewProps) {
     }
 
     // Top talents ready
-    const readyNow = data.filter(l => l.prontidaoSucessao === 'Ready Now' && l.gptwENPS2025 > 70);
-    if (readyNow.length > 5) {
+    const readyNow = data.filter(l => 
+      l.indicados.some(i => i.prontidao.toLowerCase().includes('imediato')) && 
+      l.gptwENPS2025 !== null && l.gptwENPS2025 > 70
+    );
+    if (readyNow.length > 3) {
       items.push({
         type: 'success',
         title: 'Talentos Prontos',
-        description: `${readyNow.length} líderes prontos para assumir posições estratégicas`,
+        description: `${readyNow.length} líderes com indicados prontos para assumir posições estratégicas`,
         action: 'Considerar movimentações e promoções no próximo ciclo',
       });
     }
@@ -144,7 +157,7 @@ export function RiscosView({ data }: RiscosViewProps) {
           variant="danger"
         />
         <KPICard
-          title="Sem Sucessor"
+          title="Sem Indicados"
           value={riskAnalysis.noSuccessor.length}
           subtitle="não mapeado"
           icon={XCircle}
@@ -161,7 +174,7 @@ export function RiscosView({ data }: RiscosViewProps) {
             {riskByDiretoria.map(d => (
               <div key={d.diretoria} className="p-3 rounded-lg border bg-secondary/30">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="font-medium">{d.diretoria}</span>
+                  <span className="font-medium text-sm">{d.diretoria}</span>
                   <span className={cn(
                     'text-sm font-bold px-2 py-0.5 rounded',
                     getRiskColor(d.riskScore)
@@ -181,7 +194,7 @@ export function RiscosView({ data }: RiscosViewProps) {
                 </div>
                 <div className="flex justify-between text-xs text-muted-foreground mt-2">
                   <span>{d.riscos} em risco</span>
-                  <span>{d.semSucessor} sem sucessor</span>
+                  <span>{d.semSucessor} sem indicados</span>
                 </div>
               </div>
             ))}
@@ -244,68 +257,63 @@ export function RiscosView({ data }: RiscosViewProps) {
                 <th>ENPS Time</th>
                 <th>CR 2025</th>
                 <th>Turnover</th>
-                <th>Sucessor</th>
+                <th>Indicados</th>
                 <th>Status</th>
               </tr>
             </thead>
             <tbody>
-              {topRiskLeaders.map((leader) => {
-                const hasRisk = leader.gptwENPS2025 < 50 || leader.atingimentoCR2025 < 80 || leader.percDesligamentosPorLider > 15;
-                const hasSucessor = leader.indicados.length > 0;
-                
-                return (
-                  <tr key={leader.id}>
-                    <td className="font-medium">{leader.nome}</td>
-                    <td className="text-muted-foreground">{leader.diretoria}</td>
-                    <td className="text-muted-foreground text-sm">{leader.cargo}</td>
-                    <td>
-                      <span className={cn(
-                        'status-badge',
-                        leader.gptwENPS2025 >= 70 ? 'status-success' : 
-                        leader.gptwENPS2025 >= 50 ? 'status-warning' : 'status-danger'
-                      )}>
-                        {leader.gptwENPS2025}
-                      </span>
-                    </td>
-                    <td>
-                      <span className={cn(
-                        'status-badge',
-                        leader.atingimentoCR2025 >= 100 ? 'status-success' : 
-                        leader.atingimentoCR2025 >= 80 ? 'status-warning' : 'status-danger'
-                      )}>
-                        {leader.atingimentoCR2025}%
-                      </span>
-                    </td>
-                    <td>
-                      <span className={cn(
-                        leader.percDesligamentosPorLider > 15 ? 'text-destructive font-medium' : ''
-                      )}>
-                        {leader.percDesligamentosPorLider.toFixed(1)}%
-                      </span>
-                    </td>
-                    <td>
-                      {hasSucessor ? (
-                        <span className="status-badge status-success">Sim</span>
-                      ) : (
-                        <span className="status-badge status-danger">Não</span>
+              {topRiskLeaders.map((leader) => (
+                <tr key={leader.id}>
+                  <td className="font-medium">{leader.nome}</td>
+                  <td className="text-muted-foreground text-xs">{leader.diretoria.replace('Diretoria de ', '')}</td>
+                  <td className="text-muted-foreground text-xs">{leader.cargo}</td>
+                  <td>
+                    <span className={cn(
+                      'status-badge',
+                      leader.gptwENPS2025 >= 70 ? 'status-success' : 
+                      leader.gptwENPS2025 >= 50 ? 'status-warning' : 'status-danger'
+                    )}>
+                      {leader.gptwENPS2025}
+                    </span>
+                  </td>
+                  <td>
+                    <span className={cn(
+                      'status-badge',
+                      leader.atingimentoCR2025 >= 100 ? 'status-success' : 
+                      leader.atingimentoCR2025 >= 80 ? 'status-warning' : 'status-danger'
+                    )}>
+                      {leader.atingimentoCR2025?.toFixed(0)}%
+                    </span>
+                  </td>
+                  <td>
+                    <span className={cn(
+                      leader.percentDesligamentos2025 > 15 ? 'text-destructive font-medium' : ''
+                    )}>
+                      {leader.percentDesligamentos2025?.toFixed(1)}%
+                    </span>
+                  </td>
+                  <td>
+                    {leader.indicados.length > 0 ? (
+                      <span className="status-badge status-success">Sim ({leader.indicados.length})</span>
+                    ) : (
+                      <span className="status-badge status-danger">Não</span>
+                    )}
+                  </td>
+                  <td>
+                    <div className="flex gap-1">
+                      {leader.gptwENPS2025 < 50 && (
+                        <span className="w-2 h-2 rounded-full bg-destructive" title="ENPS baixo" />
                       )}
-                    </td>
-                    <td>
-                      <div className="flex gap-1">
-                        {leader.gptwENPS2025 < 50 && (
-                          <span className="w-2 h-2 rounded-full bg-destructive" title="ENPS baixo" />
-                        )}
-                        {leader.atingimentoCR2025 < 80 && (
-                          <span className="w-2 h-2 rounded-full bg-warning" title="CR baixo" />
-                        )}
-                        {leader.percDesligamentosPorLider > 15 && (
-                          <span className="w-2 h-2 rounded-full bg-destructive" title="Alta rotatividade" />
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
+                      {leader.atingimentoCR2025 < 80 && (
+                        <span className="w-2 h-2 rounded-full bg-warning" title="CR baixo" />
+                      )}
+                      {leader.percentDesligamentos2025 > 15 && (
+                        <span className="w-2 h-2 rounded-full bg-destructive" title="Alta rotatividade" />
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>

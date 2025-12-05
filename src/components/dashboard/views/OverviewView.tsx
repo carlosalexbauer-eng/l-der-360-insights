@@ -66,8 +66,8 @@ export function OverviewView({ data }: OverviewViewProps) {
         />
         <KPICard
           title="Prontidão Ready Now"
-          value={`${Math.round((stats.prontidao['Ready Now'] || 0) / stats.total * 100)}%`}
-          subtitle={`${stats.prontidao['Ready Now'] || 0} líderes`}
+          value={`${Math.round((stats.prontidao['Ready Now'] || 0) / Math.max(stats.total, 1) * 100)}%`}
+          subtitle={`${stats.prontidao['Ready Now'] || 0} indicados`}
           icon={Award}
           variant="success"
         />
@@ -197,7 +197,7 @@ export function OverviewView({ data }: OverviewViewProps) {
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={leadershipReview}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(222, 40%, 18%)" />
-              <XAxis dataKey="quadrant" stroke="hsl(215, 20%, 65%)" fontSize={12} />
+              <XAxis dataKey="quadrant" stroke="hsl(215, 20%, 65%)" fontSize={10} angle={-15} textAnchor="end" height={80} />
               <YAxis stroke="hsl(215, 20%, 65%)" fontSize={12} />
               <Tooltip 
                 contentStyle={{ 
@@ -219,7 +219,7 @@ export function OverviewView({ data }: OverviewViewProps) {
             <BarChart data={dataByDiretoria} layout="vertical">
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(222, 40%, 18%)" />
               <XAxis type="number" stroke="hsl(215, 20%, 65%)" fontSize={12} />
-              <YAxis dataKey="diretoria" type="category" stroke="hsl(215, 20%, 65%)" fontSize={11} width={80} />
+              <YAxis dataKey="diretoria" type="category" stroke="hsl(215, 20%, 65%)" fontSize={10} width={100} />
               <Tooltip 
                 contentStyle={{ 
                   backgroundColor: 'hsl(222, 47%, 9%)', 
@@ -251,7 +251,7 @@ export function OverviewView({ data }: OverviewViewProps) {
           </div>
           <div className="p-4 bg-primary/10 border border-primary/20 rounded-lg">
             <p className="text-sm text-primary font-medium">Oportunidade</p>
-            <p className="text-xs text-muted-foreground mt-1">23% dos líderes prontos para novas posições estratégicas</p>
+            <p className="text-xs text-muted-foreground mt-1">{stats.prontidao['Ready Now'] || 0} indicados prontos para novas posições estratégicas</p>
           </div>
         </div>
       </div>

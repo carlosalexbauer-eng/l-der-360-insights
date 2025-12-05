@@ -40,7 +40,7 @@ export function IndicadosView({ data }: IndicadosViewProps) {
     return allIndicados.filter(ind => {
       const matchesSearch = ind.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
         ind.liderNome.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesProntidao = filterProntidao === 'all' || ind.prontidao === filterProntidao;
+      const matchesProntidao = filterProntidao === 'all' || ind.prontidao.toLowerCase().includes(filterProntidao.toLowerCase());
       const matchesStatus = filterStatus === 'all' || ind.status === filterStatus;
       return matchesSearch && matchesProntidao && matchesStatus;
     });
@@ -49,8 +49,8 @@ export function IndicadosView({ data }: IndicadosViewProps) {
   const stats = useMemo(() => ({
     total: allIndicados.length,
     ativos: allIndicados.filter(i => i.status === 'Ativo').length,
-    readyNow: allIndicados.filter(i => i.prontidao === 'Ready Now').length,
-    readySoon: allIndicados.filter(i => i.prontidao === 'Ready Soon').length,
+    readyNow: allIndicados.filter(i => i.prontidao.toLowerCase().includes('imediato')).length,
+    readySoon: allIndicados.filter(i => i.prontidao.toLowerCase().includes('1 a 2')).length,
     lideresComIndicados: data.filter(l => l.indicados.length > 0).length,
   }), [allIndicados, data]);
 
@@ -66,12 +66,9 @@ export function IndicadosView({ data }: IndicadosViewProps) {
   }, [allIndicados]);
 
   const getProntidaoColor = (prontidao: string) => {
-    switch (prontidao) {
-      case 'Ready Now': return 'status-success';
-      case 'Ready Soon': return 'status-warning';
-      case 'Ready Later': return 'status-danger';
-      default: return '';
-    }
+    if (prontidao.toLowerCase().includes('imediato')) return 'status-success';
+    if (prontidao.toLowerCase().includes('1 a 2')) return 'status-warning';
+    return 'status-danger';
   };
 
   return (
@@ -92,18 +89,18 @@ export function IndicadosView({ data }: IndicadosViewProps) {
         <KPICard
           title="Ativos"
           value={stats.ativos}
-          subtitle={`${Math.round((stats.ativos / stats.total) * 100)}%`}
+          subtitle={`${stats.total > 0 ? Math.round((stats.ativos / stats.total) * 100) : 0}%`}
           icon={CheckCircle}
           variant="success"
         />
         <KPICard
-          title="Ready Now"
+          title="Imediato"
           value={stats.readyNow}
           icon={CheckCircle}
           variant="success"
         />
         <KPICard
-          title="Ready Soon"
+          title="1 a 2 anos"
           value={stats.readySoon}
           icon={Clock}
           variant="warning"
@@ -135,9 +132,10 @@ export function IndicadosView({ data }: IndicadosViewProps) {
           className="filter-select"
         >
           <option value="all">Todas Prontidões</option>
-          <option value="Ready Now">Ready Now</option>
-          <option value="Ready Soon">Ready Soon</option>
-          <option value="Ready Later">Ready Later</option>
+          <option value="imediato">Imediato</option>
+          <option value="1 a 2">1 a 2 anos</option>
+          <option value="2 a 3">2 a 3 anos</option>
+          <option value="3 a 4">3 a 4 anos</option>
         </select>
 
         <select
@@ -165,19 +163,18 @@ export function IndicadosView({ data }: IndicadosViewProps) {
                   <th>Líder</th>
                   <th>Status</th>
                   <th>Prontidão</th>
-                  <th>ENPS</th>
-                  <th>CR</th>
+                  <th>CR 2024</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredIndicados.map((ind, i) => (
                   <tr key={`${ind.liderId}-${ind.nome}-${i}`}>
                     <td className="font-medium">{ind.nome}</td>
-                    <td className="text-muted-foreground">{ind.cargo}</td>
+                    <td className="text-muted-foreground text-xs">{ind.cargoAtual}</td>
                     <td>
                       <div>
                         <span className="text-sm">{ind.liderNome}</span>
-                        <span className="block text-xs text-muted-foreground">{ind.liderDiretoria}</span>
+                        <span className="block text-xs text-muted-foreground">{ind.liderDiretoria.replace('Diretoria de ', '')}</span>
                       </div>
                     </td>
                     <td>
@@ -193,14 +190,17 @@ export function IndicadosView({ data }: IndicadosViewProps) {
                         {ind.prontidao}
                       </span>
                     </td>
-                    <td className={ind.enps < 50 ? 'text-destructive' : ''}>{ind.enps}</td>
                     <td>
-                      <span className={cn(
-                        ind.atingimentoCR >= 100 ? 'text-success' : 
-                        ind.atingimentoCR >= 80 ? 'text-warning' : 'text-destructive'
-                      )}>
-                        {ind.atingimentoCR}%
-                      </span>
+                      {ind.atingimentoCR2024 !== null && ind.atingimentoCR2024 !== undefined ? (
+                        <span className={cn(
+                          (ind.atingimentoCR2024 || 0) >= 100 ? 'text-success' : 
+                          (ind.atingimentoCR2024 || 0) >= 80 ? 'text-warning' : 'text-destructive'
+                        )}>
+                          {ind.atingimentoCR2024?.toFixed(0)}%
+                        </span>
+                      ) : (
+                        <span className="text-muted-foreground">-</span>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -222,7 +222,7 @@ export function IndicadosView({ data }: IndicadosViewProps) {
                     <div className="w-24 h-2 bg-secondary rounded-full overflow-hidden">
                       <div 
                         className="h-full bg-primary rounded-full"
-                        style={{ width: `${(n.count / stats.total) * 100}%` }}
+                        style={{ width: `${stats.total > 0 ? (n.count / stats.total) * 100 : 0}%` }}
                       />
                     </div>
                     <span className="text-sm font-medium w-8">{n.count}</span>
@@ -240,13 +240,13 @@ export function IndicadosView({ data }: IndicadosViewProps) {
                 <CheckCircle className="w-5 h-5 text-success" />
                 <div className="flex-1">
                   <div className="flex justify-between text-sm mb-1">
-                    <span>Ready Now</span>
+                    <span>Imediato</span>
                     <span className="font-medium">{stats.readyNow}</span>
                   </div>
                   <div className="h-2 bg-secondary rounded-full overflow-hidden">
                     <div 
                       className="h-full bg-success rounded-full"
-                      style={{ width: `${(stats.readyNow / stats.total) * 100}%` }}
+                      style={{ width: `${stats.total > 0 ? (stats.readyNow / stats.total) * 100 : 0}%` }}
                     />
                   </div>
                 </div>
@@ -255,13 +255,13 @@ export function IndicadosView({ data }: IndicadosViewProps) {
                 <Clock className="w-5 h-5 text-warning" />
                 <div className="flex-1">
                   <div className="flex justify-between text-sm mb-1">
-                    <span>Ready Soon</span>
+                    <span>1 a 2 anos</span>
                     <span className="font-medium">{stats.readySoon}</span>
                   </div>
                   <div className="h-2 bg-secondary rounded-full overflow-hidden">
                     <div 
                       className="h-full bg-warning rounded-full"
-                      style={{ width: `${(stats.readySoon / stats.total) * 100}%` }}
+                      style={{ width: `${stats.total > 0 ? (stats.readySoon / stats.total) * 100 : 0}%` }}
                     />
                   </div>
                 </div>
@@ -270,13 +270,13 @@ export function IndicadosView({ data }: IndicadosViewProps) {
                 <AlertCircle className="w-5 h-5 text-destructive" />
                 <div className="flex-1">
                   <div className="flex justify-between text-sm mb-1">
-                    <span>Ready Later</span>
+                    <span>2+ anos</span>
                     <span className="font-medium">{stats.total - stats.readyNow - stats.readySoon}</span>
                   </div>
                   <div className="h-2 bg-secondary rounded-full overflow-hidden">
                     <div 
                       className="h-full bg-destructive rounded-full"
-                      style={{ width: `${((stats.total - stats.readyNow - stats.readySoon) / stats.total) * 100}%` }}
+                      style={{ width: `${stats.total > 0 ? ((stats.total - stats.readyNow - stats.readySoon) / stats.total) * 100 : 0}%` }}
                     />
                   </div>
                 </div>

@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { KPICard } from '../KPICard';
 import { GitBranch, Users, AlertTriangle, CheckCircle, Clock, XCircle } from 'lucide-react';
-import { Leader, diretorias } from '@/data/mockData';
+import { Leader, getDiretorias } from '@/data/mockData';
 import { cn } from '@/lib/utils';
 
 interface PipelineViewProps {
@@ -10,12 +10,6 @@ interface PipelineViewProps {
 
 // 9-Box Grid Component
 function NineBox({ data }: { data: Leader[] }) {
-  const getQuadrantLabel = (perf: string, pot: boolean): string => {
-    const perfNum = perf.startsWith('A') ? 3 : perf.startsWith('B') ? 2 : 1;
-    const potNum = pot ? 3 : 2; // If mapped as successor = high potential
-    return `${perfNum}-${potNum}`;
-  };
-
   const quadrants = useMemo(() => {
     const grid: Record<string, Leader[]> = {
       '3-3': [], '3-2': [], '3-1': [],
@@ -24,8 +18,24 @@ function NineBox({ data }: { data: Leader[] }) {
     };
 
     data.forEach(l => {
-      const perfNum = l.leadershipReview2025.startsWith('A') ? 3 : l.leadershipReview2025.startsWith('B') ? 2 : 1;
-      const potNum = l.mapeadoSucessor2025 ? 3 : l.prontidaoSucessao === 'Ready Soon' ? 2 : 1;
+      // Performance based on ultimoQuadranteReview
+      let perfNum = 2; // default medium
+      if (l.ultimoQuadranteReview) {
+        if (l.ultimoQuadranteReview.toLowerCase().includes('alto') || l.ultimoQuadranteReview.toLowerCase().includes('acima') || l.ultimoQuadranteReview.toLowerCase().includes('diferenciado')) {
+          perfNum = 3;
+        } else if (l.ultimoQuadranteReview.toLowerCase().includes('abaixo')) {
+          perfNum = 1;
+        }
+      }
+      
+      // Potential based on mapeadoSucessor2025 and indicados
+      let potNum = 1; // default low
+      if (l.mapeadoSucessor2025 === 'Sim') {
+        potNum = 3;
+      } else if (l.indicados.length > 0) {
+        potNum = 2;
+      }
+      
       const key = `${perfNum}-${potNum}`;
       if (grid[key]) grid[key].push(l);
     });
@@ -102,16 +112,24 @@ function NineBox({ data }: { data: Leader[] }) {
 
 export function PipelineView({ data }: PipelineViewProps) {
   const [selectedDiretoria, setSelectedDiretoria] = useState<string | null>(null);
+  const diretorias = getDiretorias();
+
+  // Get all indicados from leaders
+  const allIndicados = useMemo(() => {
+    return data.flatMap(l => l.indicados);
+  }, [data]);
 
   const stats = useMemo(() => {
     const filtered = selectedDiretoria ? data.filter(l => l.diretoria === selectedDiretoria) : data;
+    const indicados = filtered.flatMap(l => l.indicados);
+    
     return {
       total: filtered.length,
-      readyNow: filtered.filter(l => l.prontidaoSucessao === 'Ready Now').length,
-      readySoon: filtered.filter(l => l.prontidaoSucessao === 'Ready Soon').length,
-      readyLater: filtered.filter(l => l.prontidaoSucessao === 'Ready Later').length,
-      naoMapeado: filtered.filter(l => l.prontidaoSucessao === 'Não Mapeado').length,
-      sucessores2025: filtered.filter(l => l.mapeadoSucessor2025).length,
+      readyNow: indicados.filter(i => i.prontidao.toLowerCase().includes('imediato')).length,
+      readySoon: indicados.filter(i => i.prontidao.toLowerCase().includes('1 a 2')).length,
+      readyLater: indicados.filter(i => i.prontidao.toLowerCase().includes('2 a 3') || i.prontidao.toLowerCase().includes('3 a 4')).length,
+      naoMapeado: filtered.filter(l => l.indicados.length === 0).length,
+      sucessores2025: filtered.filter(l => l.mapeadoSucessor2025 === 'Sim').length,
     };
   }, [data, selectedDiretoria]);
 
@@ -122,14 +140,14 @@ export function PipelineView({ data }: PipelineViewProps) {
       const comSucessor = lideres.filter(l => l.indicados.length > 0).length;
       const semSucessor = lideres.length - comSucessor;
       return {
-        diretoria: d,
+        diretoria: d.replace('Diretoria de ', '').replace('Diretoria ', ''),
         total: lideres.length,
         comSucessor,
         semSucessor,
         gap: Math.round((semSucessor / (lideres.length || 1)) * 100),
       };
     }).sort((a, b) => b.gap - a.gap);
-  }, [data]);
+  }, [data, diretorias]);
 
   // Pipeline by cargo
   const pipelineByCargo = useMemo(() => {
@@ -137,8 +155,10 @@ export function PipelineView({ data }: PipelineViewProps) {
     data.forEach(l => {
       if (!cargos[l.cargo]) cargos[l.cargo] = { total: 0, readyNow: 0, readySoon: 0 };
       cargos[l.cargo].total++;
-      if (l.prontidaoSucessao === 'Ready Now') cargos[l.cargo].readyNow++;
-      if (l.prontidaoSucessao === 'Ready Soon') cargos[l.cargo].readySoon++;
+      l.indicados.forEach(ind => {
+        if (ind.prontidao.toLowerCase().includes('imediato')) cargos[l.cargo].readyNow++;
+        if (ind.prontidao.toLowerCase().includes('1 a 2')) cargos[l.cargo].readySoon++;
+      });
     });
     return Object.entries(cargos)
       .map(([cargo, stats]) => ({ cargo, ...stats }))
@@ -173,17 +193,17 @@ export function PipelineView({ data }: PipelineViewProps) {
         <KPICard
           title="Ready Later"
           value={stats.readyLater}
-          subtitle="3+ anos"
+          subtitle="2+ anos"
           icon={GitBranch}
         />
         <KPICard
-          title="Não Mapeados"
+          title="Sem Indicados"
           value={stats.naoMapeado}
           icon={XCircle}
           variant="danger"
         />
         <KPICard
-          title="Total Sucessores"
+          title="Mapeados Sucessores"
           value={stats.sucessores2025}
           subtitle="mapeados 2025"
           icon={Users}
@@ -210,7 +230,7 @@ export function PipelineView({ data }: PipelineViewProps) {
               selectedDiretoria === d ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground hover:text-foreground'
             )}
           >
-            {d}
+            {d.replace('Diretoria de ', '').replace('Diretoria ', '')}
           </button>
         ))}
       </div>
@@ -228,7 +248,7 @@ export function PipelineView({ data }: PipelineViewProps) {
           <div className="space-y-3">
             {gapsByDiretoria.map(d => (
               <div key={d.diretoria} className="flex items-center gap-3">
-                <span className="text-sm w-24 truncate">{d.diretoria}</span>
+                <span className="text-sm w-28 truncate">{d.diretoria}</span>
                 <div className="flex-1 h-6 bg-secondary rounded-full overflow-hidden relative">
                   <div 
                     className="h-full bg-success/60 absolute left-0"
@@ -275,10 +295,10 @@ export function PipelineView({ data }: PipelineViewProps) {
             </thead>
             <tbody>
               {pipelineByCargo.map(p => {
-                const cobertura = Math.round(((p.readyNow + p.readySoon) / p.total) * 100);
+                const cobertura = Math.round(((p.readyNow + p.readySoon) / Math.max(p.total, 1)) * 100);
                 return (
                   <tr key={p.cargo}>
-                    <td className="font-medium">{p.cargo}</td>
+                    <td className="font-medium text-sm">{p.cargo}</td>
                     <td className="text-center">{p.total}</td>
                     <td className="text-center">
                       <span className="status-badge status-success">{p.readyNow}</span>

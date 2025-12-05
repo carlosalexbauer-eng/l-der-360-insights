@@ -50,7 +50,7 @@ export function JobRotationView({ data }: JobRotationViewProps) {
       case 'Em análise': return <Clock className="w-4 h-4 text-warning" />;
       case 'Concluído': return <CheckCircle className="w-4 h-4 text-primary" />;
       case 'Recusado': return <XCircle className="w-4 h-4 text-destructive" />;
-      default: return null;
+      default: return <Clock className="w-4 h-4 text-muted-foreground" />;
     }
   };
 
@@ -60,9 +60,14 @@ export function JobRotationView({ data }: JobRotationViewProps) {
       case 'Em análise': return 'status-warning';
       case 'Concluído': return 'bg-primary/20 text-primary';
       case 'Recusado': return 'status-danger';
-      default: return '';
+      default: return 'bg-secondary text-muted-foreground';
     }
   };
+
+  // Calculate average time in position
+  const avgTimeInPosition = rotationData.length > 0 
+    ? rotationData.reduce((acc, l) => acc + (l.rotation.tempoNoCargo || 0), 0) / rotationData.length 
+    : 0;
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -109,56 +114,63 @@ export function JobRotationView({ data }: JobRotationViewProps) {
         {/* Rotation Table */}
         <div className="lg:col-span-2 chart-container">
           <h3 className="font-display font-semibold mb-4">Indicações para Job Rotation</h3>
-          <div className="overflow-x-auto max-h-[500px] scrollbar-thin">
-            <table className="data-table">
-              <thead className="sticky top-0 bg-card">
-                <tr>
-                  <th>Líder</th>
-                  <th>Cargo Atual</th>
-                  <th>Nível</th>
-                  <th>Tempo no Cargo</th>
-                  <th>Status</th>
-                  <th>ENPS</th>
-                  <th>CR</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rotationData.map((leader) => (
-                  <tr key={leader.id}>
-                    <td>
-                      <div>
-                        <span className="font-medium">{leader.nome}</span>
-                        <span className="block text-xs text-muted-foreground">{leader.diretoria}</span>
-                      </div>
-                    </td>
-                    <td className="text-muted-foreground text-sm">{leader.cargo}</td>
-                    <td>
-                      <span className="status-badge bg-secondary text-foreground">
-                        {leader.nivelCarreira}
-                      </span>
-                    </td>
-                    <td>{leader.rotation.tempoNoCargo.toFixed(1)} anos</td>
-                    <td>
-                      <span className={cn('status-badge', getStatusBadge(leader.rotation.status))}>
-                        {leader.rotation.status}
-                      </span>
-                    </td>
-                    <td className={leader.gptwENPS2025 < 50 ? 'text-destructive' : ''}>
-                      {leader.gptwENPS2025}
-                    </td>
-                    <td>
-                      <span className={cn(
-                        leader.atingimentoCR2025 >= 100 ? 'text-success' : 
-                        leader.atingimentoCR2025 >= 80 ? '' : 'text-destructive'
-                      )}>
-                        {leader.atingimentoCR2025}%
-                      </span>
-                    </td>
+          {rotationData.length === 0 ? (
+            <div className="text-center py-12 text-muted-foreground">
+              <ArrowRightLeft className="w-12 h-12 mx-auto mb-4 opacity-50" />
+              <p>Nenhuma indicação de Job Rotation encontrada</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto max-h-[500px] scrollbar-thin">
+              <table className="data-table">
+                <thead className="sticky top-0 bg-card">
+                  <tr>
+                    <th>Líder</th>
+                    <th>Cargo Atual</th>
+                    <th>Nível</th>
+                    <th>Tempo no Cargo</th>
+                    <th>Status</th>
+                    <th>ENPS</th>
+                    <th>CR</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {rotationData.map((leader) => (
+                    <tr key={leader.id}>
+                      <td>
+                        <div>
+                          <span className="font-medium">{leader.nome}</span>
+                          <span className="block text-xs text-muted-foreground">{leader.diretoria.replace('Diretoria de ', '')}</span>
+                        </div>
+                      </td>
+                      <td className="text-muted-foreground text-sm">{leader.cargo}</td>
+                      <td>
+                        <span className="status-badge bg-secondary text-foreground">
+                          {leader.nivelCarreira}
+                        </span>
+                      </td>
+                      <td>{leader.rotation.tempoNoCargo?.toFixed(1) || '-'} anos</td>
+                      <td>
+                        <span className={cn('status-badge', getStatusBadge(leader.rotation.status))}>
+                          {leader.rotation.status || 'Pendente'}
+                        </span>
+                      </td>
+                      <td className={leader.gptwENPS2025 !== null && leader.gptwENPS2025 < 50 ? 'text-destructive' : ''}>
+                        {leader.gptwENPS2025 ?? '-'}
+                      </td>
+                      <td>
+                        <span className={cn(
+                          leader.atingimentoCR2025 !== null && leader.atingimentoCR2025 >= 100 ? 'text-success' : 
+                          leader.atingimentoCR2025 !== null && leader.atingimentoCR2025 >= 80 ? '' : 'text-destructive'
+                        )}>
+                          {leader.atingimentoCR2025?.toFixed(0) ?? '-'}%
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
 
         {/* Side Stats */}
@@ -184,7 +196,7 @@ export function JobRotationView({ data }: JobRotationViewProps) {
                           s.color === 'primary' && 'bg-primary',
                           s.color === 'danger' && 'bg-destructive',
                         )}
-                        style={{ width: `${(s.count / stats.total) * 100}%` }}
+                        style={{ width: `${stats.total > 0 ? (s.count / stats.total) * 100 : 0}%` }}
                       />
                     </div>
                   </div>
@@ -197,12 +209,16 @@ export function JobRotationView({ data }: JobRotationViewProps) {
           <div className="chart-container">
             <h3 className="font-display font-semibold mb-4">Por Nível de Carreira</h3>
             <div className="space-y-3">
-              {byNivel.map(n => (
-                <div key={n.nivel} className="flex items-center justify-between p-2 bg-secondary/30 rounded-lg">
-                  <span className="text-sm">{n.nivel}</span>
-                  <span className="text-lg font-display font-bold text-primary">{n.count}</span>
-                </div>
-              ))}
+              {byNivel.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-4">Sem dados</p>
+              ) : (
+                byNivel.map(n => (
+                  <div key={n.nivel} className="flex items-center justify-between p-2 bg-secondary/30 rounded-lg">
+                    <span className="text-sm">{n.nivel}</span>
+                    <span className="text-lg font-display font-bold text-primary">{n.count}</span>
+                  </div>
+                ))
+              )}
             </div>
           </div>
 
@@ -211,7 +227,7 @@ export function JobRotationView({ data }: JobRotationViewProps) {
             <h3 className="font-display font-semibold mb-4">Tempo Médio no Cargo</h3>
             <div className="text-center py-4">
               <span className="text-4xl font-display font-bold text-primary">
-                {(rotationData.reduce((acc, l) => acc + l.rotation.tempoNoCargo, 0) / rotationData.length || 0).toFixed(1)}
+                {avgTimeInPosition.toFixed(1)}
               </span>
               <span className="text-muted-foreground ml-2">anos</span>
             </div>

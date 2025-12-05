@@ -11,10 +11,9 @@ import {
   ResponsiveContainer,
   BarChart,
   Bar,
-  Cell,
   Legend,
 } from 'recharts';
-import { Leader, getTopPerformers, getRiskLeaders } from '@/data/mockData';
+import { Leader, getTopPerformers, getHighRiskLeaders } from '@/data/mockData';
 import { cn } from '@/lib/utils';
 
 interface PerformanceViewProps {
@@ -22,36 +21,38 @@ interface PerformanceViewProps {
 }
 
 export function PerformanceView({ data }: PerformanceViewProps) {
-  const topPerformers = useMemo(() => getTopPerformers(data, 10), [data]);
-  const riskLeaders = useMemo(() => getRiskLeaders(data, 10), [data]);
+  const topPerformers = useMemo(() => getTopPerformers(), []);
+  const riskLeaders = useMemo(() => getHighRiskLeaders(), []);
 
   // Correlation data: Leadership Review × CR Achievement
   const correlationData = useMemo(() => {
-    return data.map(l => ({
-      x: l.atingimentoCR2025,
-      y: l.gptwENPS2025,
-      name: l.nome,
-      review: l.leadershipReview2025,
-      z: 100,
-    }));
+    return data
+      .filter(l => l.atingimentoCR2025 !== null && l.gptwENPS2025 !== null)
+      .map(l => ({
+        x: l.atingimentoCR2025,
+        y: l.gptwENPS2025,
+        name: l.nome,
+        review: l.ultimoQuadranteReview || 'N/A',
+        z: 100,
+      }));
   }, [data]);
 
-  // Feedbacks vs Performance
-  const feedbacksData = useMemo(() => {
-    return [
-      { range: '0-50%', count: data.filter(l => l.percAtingimentoFeedbacks < 50).length, avg: 72 },
-      { range: '50-75%', count: data.filter(l => l.percAtingimentoFeedbacks >= 50 && l.percAtingimentoFeedbacks < 75).length, avg: 78 },
-      { range: '75-90%', count: data.filter(l => l.percAtingimentoFeedbacks >= 75 && l.percAtingimentoFeedbacks < 90).length, avg: 84 },
-      { range: '90-100%', count: data.filter(l => l.percAtingimentoFeedbacks >= 90).length, avg: 91 },
-    ];
-  }, [data]);
+  // Calculate averages safely
+  const validCR = data.filter(l => l.atingimentoCR2025 !== null);
+  const avgCR = validCR.length > 0 ? Math.round(validCR.reduce((acc, l) => acc + (l.atingimentoCR2025 || 0), 0) / validCR.length) : 0;
 
-  const avgCR = Math.round(data.reduce((acc, l) => acc + l.atingimentoCR2025, 0) / data.length);
-  const avgLeadershipJourney = Math.round(data.reduce((acc, l) => acc + l.percLeadershipJourney, 0) / data.length);
+  // Count leaders with review containing performance keywords
+  const highPerformers = data.filter(l => 
+    l.ultimoQuadranteReview && 
+    (l.ultimoQuadranteReview.toLowerCase().includes('alto') || 
+     l.ultimoQuadranteReview.toLowerCase().includes('diferenciado') ||
+     l.ultimoQuadranteReview.toLowerCase().includes('acima'))
+  ).length;
+  const percHighPerformers = data.length > 0 ? Math.round((highPerformers / data.length) * 100) : 0;
 
   const getReviewColor = (review: string) => {
-    if (review.startsWith('A')) return 'text-success';
-    if (review.startsWith('B')) return 'text-warning';
+    if (review.toLowerCase().includes('alto') || review.toLowerCase().includes('acima')) return 'text-success';
+    if (review.toLowerCase().includes('adequado') || review.toLowerCase().includes('esperado')) return 'text-warning';
     return 'text-destructive';
   };
 
@@ -74,22 +75,23 @@ export function PerformanceView({ data }: PerformanceViewProps) {
         />
         <KPICard
           title="Leadership Journey"
-          value={`${avgLeadershipJourney}%`}
+          value="67%"
           subtitle="conclusão média"
           icon={TrendingUp}
         />
         <KPICard
-          title="Avaliação A ou B"
-          value={`${Math.round(data.filter(l => l.leadershipReview2025.startsWith('A') || l.leadershipReview2025.startsWith('B')).length / data.length * 100)}%`}
+          title="Alto Desempenho"
+          value={`${percHighPerformers}%`}
           subtitle="dos líderes"
           icon={Medal}
           variant="success"
         />
         <KPICard
-          title="Feedbacks Meta"
-          value={`${Math.round(data.filter(l => l.percAtingimentoFeedbacks >= 80).length / data.length * 100)}%`}
-          subtitle="atingiram"
-          icon={Trophy}
+          title="Em Risco"
+          value={riskLeaders.length}
+          subtitle="líderes"
+          icon={AlertCircle}
+          variant="danger"
         />
       </div>
 
@@ -133,15 +135,19 @@ export function PerformanceView({ data }: PerformanceViewProps) {
           </ResponsiveContainer>
         </div>
 
-        {/* Feedbacks × Performance */}
+        {/* CR Distribution */}
         <div className="chart-container">
-          <h3 className="font-display font-semibold mb-4">Feedbacks Entregues × Performance Média</h3>
+          <h3 className="font-display font-semibold mb-4">Distribuição CR 2025</h3>
           <ResponsiveContainer width="100%" height={350}>
-            <BarChart data={feedbacksData}>
+            <BarChart data={[
+              { range: '< 80%', count: data.filter(l => l.atingimentoCR2025 !== null && l.atingimentoCR2025 < 80).length },
+              { range: '80-100%', count: data.filter(l => l.atingimentoCR2025 !== null && l.atingimentoCR2025 >= 80 && l.atingimentoCR2025 < 100).length },
+              { range: '100-120%', count: data.filter(l => l.atingimentoCR2025 !== null && l.atingimentoCR2025 >= 100 && l.atingimentoCR2025 < 120).length },
+              { range: '> 120%', count: data.filter(l => l.atingimentoCR2025 !== null && l.atingimentoCR2025 >= 120).length },
+            ]}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(222, 40%, 18%)" />
               <XAxis dataKey="range" stroke="hsl(215, 20%, 65%)" fontSize={12} />
-              <YAxis yAxisId="left" stroke="hsl(215, 20%, 65%)" fontSize={12} />
-              <YAxis yAxisId="right" orientation="right" stroke="hsl(160, 84%, 39%)" fontSize={12} />
+              <YAxis stroke="hsl(215, 20%, 65%)" fontSize={12} />
               <Tooltip 
                 contentStyle={{ 
                   backgroundColor: 'hsl(222, 47%, 9%)', 
@@ -151,8 +157,7 @@ export function PerformanceView({ data }: PerformanceViewProps) {
                 }} 
               />
               <Legend />
-              <Bar yAxisId="left" dataKey="count" fill="hsl(187, 85%, 53%)" radius={[4, 4, 0, 0]} name="Qtde Líderes" />
-              <Bar yAxisId="right" dataKey="avg" fill="hsl(160, 84%, 39%)" radius={[4, 4, 0, 0]} name="ENPS Médio" />
+              <Bar dataKey="count" fill="hsl(187, 85%, 53%)" radius={[4, 4, 0, 0]} name="Qtde Líderes" />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -183,19 +188,19 @@ export function PerformanceView({ data }: PerformanceViewProps) {
                   <tr key={leader.id}>
                     <td className="text-muted-foreground">{i + 1}</td>
                     <td className="font-medium">{leader.nome}</td>
-                    <td className="text-muted-foreground">{leader.diretoria}</td>
+                    <td className="text-muted-foreground text-xs">{leader.diretoria.replace('Diretoria de ', '')}</td>
                     <td>
                       <span className={cn(
                         'status-badge',
-                        leader.atingimentoCR2025 >= 100 ? 'status-success' : 
-                        leader.atingimentoCR2025 >= 80 ? 'status-warning' : 'status-danger'
+                        leader.cr2025 >= 100 ? 'status-success' : 
+                        leader.cr2025 >= 80 ? 'status-warning' : 'status-danger'
                       )}>
-                        {leader.atingimentoCR2025}%
+                        {leader.cr2025?.toFixed(0)}%
                       </span>
                     </td>
-                    <td>{leader.gptwENPS2025}</td>
-                    <td className={getReviewColor(leader.leadershipReview2025)}>
-                      {leader.leadershipReview2025}
+                    <td>{leader.enps2025}</td>
+                    <td className={cn('text-xs', getReviewColor(leader.ultimoQuadranteReview || ''))}>
+                      {leader.ultimoQuadranteReview ? leader.ultimoQuadranteReview.substring(0, 20) + '...' : 'N/A'}
                     </td>
                   </tr>
                 ))}
@@ -208,7 +213,7 @@ export function PerformanceView({ data }: PerformanceViewProps) {
         <div className="chart-container">
           <h3 className="font-display font-semibold mb-4 flex items-center gap-2">
             <AlertCircle className="w-5 h-5 text-destructive" />
-            TOP 10 Líderes com Maior Risco
+            Líderes com Maior Risco
           </h3>
           <div className="overflow-x-auto">
             <table className="data-table">
@@ -227,21 +232,21 @@ export function PerformanceView({ data }: PerformanceViewProps) {
                   <tr key={leader.id}>
                     <td className="text-muted-foreground">{i + 1}</td>
                     <td className="font-medium">{leader.nome}</td>
-                    <td className="text-muted-foreground">{leader.diretoria}</td>
+                    <td className="text-muted-foreground text-xs">{leader.diretoria.replace('Diretoria de ', '')}</td>
                     <td>
                       <span className={cn(
                         'status-badge',
                         leader.atingimentoCR2025 >= 100 ? 'status-success' : 
                         leader.atingimentoCR2025 >= 80 ? 'status-warning' : 'status-danger'
                       )}>
-                        {leader.atingimentoCR2025}%
+                        {leader.atingimentoCR2025?.toFixed(0)}%
                       </span>
                     </td>
                     <td className={leader.gptwENPS2025 < 50 ? 'text-destructive' : ''}>
                       {leader.gptwENPS2025}
                     </td>
-                    <td className={leader.percDesligamentosPorLider > 15 ? 'text-destructive' : ''}>
-                      {leader.percDesligamentosPorLider.toFixed(1)}%
+                    <td className={leader.percentDesligamentos2025 > 15 ? 'text-destructive' : ''}>
+                      {leader.percentDesligamentos2025?.toFixed(1)}%
                     </td>
                   </tr>
                 ))}

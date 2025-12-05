@@ -8,7 +8,7 @@ import { PipelineView } from './views/PipelineView';
 import { IndicadosView } from './views/IndicadosView';
 import { RiscosView } from './views/RiscosView';
 import { JobRotationView } from './views/JobRotationView';
-import { leaders } from '@/data/mockData';
+import { allLeaders } from '@/data/mockData';
 
 export function Dashboard() {
   const [activeView, setActiveView] = useState('overview');
@@ -24,7 +24,7 @@ export function Dashboard() {
 
   // Filter data based on filters
   const filteredData = useMemo(() => {
-    return leaders.filter(l => {
+    return allLeaders.filter(l => {
       const matchesDiretoria = filters.diretoria === 'all' || l.diretoria === filters.diretoria;
       const matchesNivel = filters.nivelCarreira === 'all' || l.nivelCarreira === filters.nivelCarreira;
       return matchesDiretoria && matchesNivel;

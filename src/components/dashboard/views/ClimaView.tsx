@@ -11,7 +11,6 @@ import {
   ResponsiveContainer,
   BarChart,
   Bar,
-  Cell,
   Legend,
   RadarChart,
   Radar,
@@ -26,39 +25,51 @@ interface ClimaViewProps {
   data: Leader[];
 }
 
-const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set'];
 
 export function ClimaView({ data }: ClimaViewProps) {
-  const avgENPS2024 = Math.round(data.reduce((acc, l) => acc + l.gptwENPS2024, 0) / data.length);
-  const avgENPS2025 = Math.round(data.reduce((acc, l) => acc + l.gptwENPS2025, 0) / data.length);
-  const avgLNPS = Math.round(data.reduce((acc, l) => acc + l.gptwLNPS2025, 0) / data.length);
-  const avgIVR = Math.round(data.reduce((acc, l) => acc + l.gptwIVR2025, 0) / data.length);
+  const validENPS2024 = data.filter(l => l.gptwENPS2024 !== null);
+  const validENPS2025 = data.filter(l => l.gptwENPS2025 !== null);
+  const validLNPS = data.filter(l => l.gptwLNPS2025 !== null);
+  const validIVR = data.filter(l => l.gptwIVR2025 !== null);
+
+  const avgENPS2024 = validENPS2024.length > 0 ? Math.round(validENPS2024.reduce((acc, l) => acc + (l.gptwENPS2024 || 0), 0) / validENPS2024.length) : 0;
+  const avgENPS2025 = validENPS2025.length > 0 ? Math.round(validENPS2025.reduce((acc, l) => acc + (l.gptwENPS2025 || 0), 0) / validENPS2025.length) : 0;
+  const avgLNPS = validLNPS.length > 0 ? Math.round(validLNPS.reduce((acc, l) => acc + (l.gptwLNPS2025 || 0), 0) / validLNPS.length) : 0;
+  const avgIVR = validIVR.length > 0 ? Math.round(validIVR.reduce((acc, l) => acc + (l.gptwIVR2025 || 0), 0) / validIVR.length) : 0;
 
   const dataByDiretoria = useMemo(() => getDataByDiretoria(data), [data]);
 
   // MOODS monthly data
   const moodsData = useMemo(() => {
     return months.map((month, i) => {
-      const avg = Math.round(data.reduce((acc, l) => acc + (l.moodsENPS2025[i] || 0), 0) / data.length);
+      const values = data.map(l => l.moodsENPS[i]).filter((v): v is number => v !== null);
+      const avg = values.length > 0 ? Math.round(values.reduce((a, b) => a + b, 0) / values.length) : null;
       return { month, enps: avg };
-    });
+    }).filter(m => m.enps !== null);
   }, [data]);
 
   // Comparison 2024 vs 2025
   const comparisonData = useMemo(() => {
-    return dataByDiretoria.map(d => ({
-      diretoria: d.diretoria,
-      enps2024: Math.round(data.filter(l => l.diretoria === d.diretoria).reduce((acc, l) => acc + l.gptwENPS2024, 0) / (data.filter(l => l.diretoria === d.diretoria).length || 1)),
-      enps2025: d.mediaENPS,
-    }));
+    return dataByDiretoria.map(d => {
+      const lidersDiretoria = data.filter(l => l.diretoria.includes(d.diretoria) || d.diretoria.includes(l.diretoria.replace('Diretoria de ', '').replace('Diretoria ', '')));
+      const valid2024 = lidersDiretoria.filter(l => l.gptwENPS2024 !== null);
+      const enps2024 = valid2024.length > 0 ? Math.round(valid2024.reduce((acc, l) => acc + (l.gptwENPS2024 || 0), 0) / valid2024.length) : 0;
+      return {
+        diretoria: d.diretoria.substring(0, 15),
+        enps2024,
+        enps2025: d.mediaENPS,
+      };
+    });
   }, [data, dataByDiretoria]);
 
   // Leaders with biggest improvement/decline
   const leadersEvolution = useMemo(() => {
     return data
+      .filter(l => l.gptwENPS2024 !== null && l.gptwENPS2025 !== null)
       .map(l => ({
         ...l,
-        evolution: l.gptwENPS2025 - l.gptwENPS2024,
+        evolution: (l.gptwENPS2025 || 0) - (l.gptwENPS2024 || 0),
       }))
       .sort((a, b) => b.evolution - a.evolution);
   }, [data]);
@@ -68,11 +79,10 @@ export function ClimaView({ data }: ClimaViewProps) {
 
   // Radar data for estágio de liderança
   const estagioData = useMemo(() => {
-    const stages = ['Inicial', 'Em Desenvolvimento', 'Consolidado', 'Referência'];
+    const stages = ['O Líder For All', 'O Bom Líder', 'O Líder Transacional', 'O Líder Inconsciente'];
     return stages.map(s => ({
-      stage: s,
-      '2024': data.filter(l => l.estagioLideranca2024 === s).length,
-      '2025': data.filter(l => l.estagioLideranca2025 === s).length,
+      stage: s.replace('O ', '').substring(0, 12),
+      '2025': data.filter(l => l.gptwEstagioLideranca2025 === s).length,
     }));
   }, [data]);
 
@@ -159,7 +169,7 @@ export function ClimaView({ data }: ClimaViewProps) {
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={comparisonData}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(222, 40%, 18%)" />
-              <XAxis dataKey="diretoria" stroke="hsl(215, 20%, 65%)" fontSize={10} angle={-20} textAnchor="end" height={60} />
+              <XAxis dataKey="diretoria" stroke="hsl(215, 20%, 65%)" fontSize={9} angle={-20} textAnchor="end" height={60} />
               <YAxis stroke="hsl(215, 20%, 65%)" fontSize={12} domain={[0, 100]} />
               <Tooltip 
                 contentStyle={{ 
@@ -210,13 +220,12 @@ export function ClimaView({ data }: ClimaViewProps) {
 
         {/* Stage Radar */}
         <div className="chart-container">
-          <h3 className="font-display font-semibold mb-4">Estágio de Liderança: 2024 vs 2025</h3>
+          <h3 className="font-display font-semibold mb-4">Estágio de Liderança 2025</h3>
           <ResponsiveContainer width="100%" height={300}>
             <RadarChart cx="50%" cy="50%" outerRadius="70%" data={estagioData}>
               <PolarGrid stroke="hsl(222, 40%, 18%)" />
-              <PolarAngleAxis dataKey="stage" stroke="hsl(215, 20%, 65%)" fontSize={11} />
+              <PolarAngleAxis dataKey="stage" stroke="hsl(215, 20%, 65%)" fontSize={10} />
               <PolarRadiusAxis stroke="hsl(215, 20%, 65%)" fontSize={10} />
-              <Radar name="2024" dataKey="2024" stroke="hsl(215, 20%, 45%)" fill="hsl(215, 20%, 45%)" fillOpacity={0.3} />
               <Radar name="2025" dataKey="2025" stroke="hsl(187, 85%, 53%)" fill="hsl(187, 85%, 53%)" fillOpacity={0.3} />
               <Legend />
             </RadarChart>
@@ -247,7 +256,7 @@ export function ClimaView({ data }: ClimaViewProps) {
                 {topImprovement.map((leader) => (
                   <tr key={leader.id}>
                     <td className="font-medium">{leader.nome}</td>
-                    <td className="text-muted-foreground">{leader.diretoria}</td>
+                    <td className="text-muted-foreground text-xs">{leader.diretoria.replace('Diretoria de ', '')}</td>
                     <td>{leader.gptwENPS2024}</td>
                     <td>{leader.gptwENPS2025}</td>
                     <td className="text-success font-semibold">+{leader.evolution}</td>
@@ -279,7 +288,7 @@ export function ClimaView({ data }: ClimaViewProps) {
                 {topDecline.map((leader) => (
                   <tr key={leader.id}>
                     <td className="font-medium">{leader.nome}</td>
-                    <td className="text-muted-foreground">{leader.diretoria}</td>
+                    <td className="text-muted-foreground text-xs">{leader.diretoria.replace('Diretoria de ', '')}</td>
                     <td>{leader.gptwENPS2024}</td>
                     <td>{leader.gptwENPS2025}</td>
                     <td className="text-destructive font-semibold">{leader.evolution}</td>

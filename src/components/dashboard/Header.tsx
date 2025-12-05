@@ -1,6 +1,6 @@
 import { Bell, Search, Filter } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { diretorias } from '@/data/mockData';
+import { getDiretorias, getNiveisCarreira } from '@/data/mockData';
 
 interface HeaderProps {
   filters: {
@@ -12,6 +12,9 @@ interface HeaderProps {
 }
 
 export function Header({ filters, onFilterChange }: HeaderProps) {
+  const diretorias = getDiretorias();
+  const niveisCarreira = getNiveisCarreira();
+
   return (
     <header className="h-16 border-b border-border bg-card/50 backdrop-blur-xl px-6 flex items-center justify-between">
       {/* Search */}
@@ -37,7 +40,7 @@ export function Header({ filters, onFilterChange }: HeaderProps) {
           <SelectContent>
             <SelectItem value="all">Todas</SelectItem>
             {diretorias.map((d) => (
-              <SelectItem key={d} value={d}>{d}</SelectItem>
+              <SelectItem key={d} value={d}>{d.replace('Diretoria de ', '').replace('Diretoria ', '')}</SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -58,10 +61,9 @@ export function Header({ filters, onFilterChange }: HeaderProps) {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todos</SelectItem>
-            <SelectItem value="Coordenador">Coordenador</SelectItem>
-            <SelectItem value="Gerente">Gerente</SelectItem>
-            <SelectItem value="Diretor">Diretor</SelectItem>
-            <SelectItem value="Especialista">Especialista</SelectItem>
+            {niveisCarreira.map((n) => (
+              <SelectItem key={n} value={n}>{n}</SelectItem>
+            ))}
           </SelectContent>
         </Select>
 

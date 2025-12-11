@@ -1,6 +1,10 @@
-import { Bell, Search, Filter } from 'lucide-react';
+import { Bell, Search, Filter, LogOut, User } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { getDiretorias, getNiveisCarreira } from '@/data/mockData';
+import { AdminUpload } from './AdminUpload';
+import { useAuth } from '@/hooks/useAuth';
+import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
 
 interface HeaderProps {
   filters: {
@@ -14,6 +18,13 @@ interface HeaderProps {
 export function Header({ filters, onFilterChange }: HeaderProps) {
   const diretorias = getDiretorias();
   const niveisCarreira = getNiveisCarreira();
+  const { user, isAdmin, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/auth');
+  };
 
   return (
     <header className="h-16 border-b border-border bg-card/50 backdrop-blur-xl px-6 flex items-center justify-between">
@@ -67,11 +78,41 @@ export function Header({ filters, onFilterChange }: HeaderProps) {
           </SelectContent>
         </Select>
 
+        {/* Admin Upload */}
+        <AdminUpload />
+
         {/* Notifications */}
         <button className="relative p-2 rounded-lg hover:bg-secondary transition-colors">
           <Bell className="w-5 h-5 text-muted-foreground" />
           <span className="absolute top-1 right-1 w-2 h-2 bg-destructive rounded-full" />
         </button>
+
+        {/* User Menu */}
+        {user ? (
+          <div className="flex items-center gap-2 ml-2 pl-2 border-l border-border">
+            <span className="text-xs text-muted-foreground max-w-24 truncate">
+              {user.email}
+            </span>
+            {isAdmin && (
+              <span className="text-xs bg-primary/20 text-primary px-1.5 py-0.5 rounded">
+                Admin
+              </span>
+            )}
+            <Button variant="ghost" size="icon" onClick={handleSignOut} title="Sair">
+              <LogOut className="w-4 h-4 text-muted-foreground" />
+            </Button>
+          </div>
+        ) : (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate('/auth')}
+            className="ml-2"
+          >
+            <User className="w-4 h-4 mr-1" />
+            Entrar
+          </Button>
+        )}
       </div>
     </header>
   );

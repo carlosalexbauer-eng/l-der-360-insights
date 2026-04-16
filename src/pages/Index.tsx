@@ -1,13 +1,5 @@
-import { BotaoDataHoje } from "@/components/BotaoDataHoje";
-import { Dashboard } from "@/components/dashboard/Dashboard";
-
 const Index = () => {
-  return (
-    <>
-      <Dashboard />
-      <BotaoDataHoje />
-    </>
-  );
+  return <div style={{ padding: 40, fontSize: 24 }}>INDEX CARREGOU</div>;
 };
 
 export default Index;

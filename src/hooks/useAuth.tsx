@@ -79,11 +79,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsAdmin(false);
   };
 
-  return (
+   return (
     <AuthContext.Provider
       value={{ user, session, isAdmin, loading, signIn, signUp, signOut }}
     >
       {children}
     </AuthContext.Provider>
   );
+}
+
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
 }

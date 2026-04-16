@@ -12,3 +12,4 @@
 >
   TESTE
 </button>
+zIndex: 99999,

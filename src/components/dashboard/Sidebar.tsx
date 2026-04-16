@@ -26,6 +26,7 @@ const menuItems = [
   { id: 'indicados', label: 'Indicados', icon: UserCheck },
   { id: 'riscos', label: 'Riscos', icon: AlertTriangle },
   { id: 'jobrotation', label: 'Job Rotation', icon: Briefcase },
+  { id: 'admin', label: 'Admin', icon: Settings },
 ];
 
 export function Sidebar({ activeView, onViewChange }: SidebarProps) {
@@ -90,8 +91,4 @@ export function Sidebar({ activeView, onViewChange }: SidebarProps) {
       </div>
     </aside>
   );
-}
-{
-  id: "admin",
-  label: "Admin",
 }

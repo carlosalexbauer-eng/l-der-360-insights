@@ -1,7 +1,5 @@
-import { Dashboard } from "@/components/dashboard/Dashboard";
-
 const Index = () => {
-  return <Dashboard />;
+  return <div style={{ padding: 24, color: "black" }}>App carregou</div>;
 };
 
 export default Index;

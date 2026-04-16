@@ -91,3 +91,7 @@ export function Sidebar({ activeView, onViewChange }: SidebarProps) {
     </aside>
   );
 }
+{
+  id: "admin",
+  label: "Admin",
+}

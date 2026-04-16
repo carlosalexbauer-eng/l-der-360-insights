@@ -8,6 +8,7 @@ import { PipelineView } from './views/PipelineView';
 import { IndicadosView } from './views/IndicadosView';
 import { RiscosView } from './views/RiscosView';
 import { JobRotationView } from './views/JobRotationView';
+import AdminView from './views/AdminView';
 import { allLeaders } from '@/data/mockData';
 
 export function Dashboard() {
@@ -22,7 +23,6 @@ export function Dashboard() {
     setFilters(prev => ({ ...prev, [key]: value }));
   };
 
-  // Filter data based on filters
   const filteredData = useMemo(() => {
     return allLeaders.filter(l => {
       const matchesDiretoria = filters.diretoria === 'all' || l.diretoria === filters.diretoria;
@@ -47,6 +47,8 @@ export function Dashboard() {
         return <RiscosView data={filteredData} />;
       case 'jobrotation':
         return <JobRotationView data={filteredData} />;
+      case 'admin':
+        return <AdminView />;
       default:
         return <OverviewView data={filteredData} />;
     }

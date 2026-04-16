@@ -1,1 +1,205 @@
+import { useMemo, useState } from "react";
 
+type User = {
+  id: number;
+  name: string;
+  email: string;
+  role: "Administrador" | "Gestor" | "Usuário";
+  status: "Ativo" | "Inativo";
+};
+
+const initialUsers: User[] = [
+  { id: 1, name: "Ana Souza", email: "ana@empresa.com", role: "Administrador", status: "Ativo" },
+  { id: 2, name: "Carlos Lima", email: "carlos@empresa.com", role: "Gestor", status: "Ativo" },
+  { id: 3, name: "Fernanda Rocha", email: "fernanda@empresa.com", role: "Usuário", status: "Inativo" },
+  { id: 4, name: "Marcos Silva", email: "marcos@empresa.com", role: "Usuário", status: "Ativo" },
+];
+
+export default function AdminView() {
+  const [search, setSearch] = useState("");
+  const [users, setUsers] = useState<User[]>(initialUsers);
+
+  const filteredUsers = useMemo(() => {
+    const term = search.toLowerCase();
+    return users.filter((user) =>
+      user.name.toLowerCase().includes(term) ||
+      user.email.toLowerCase().includes(term) ||
+      user.role.toLowerCase().includes(term)
+    );
+  }, [search, users]);
+
+  const totalUsers = users.length;
+  const activeUsers = users.filter((u) => u.status === "Ativo").length;
+  const inactiveUsers = users.filter((u) => u.status === "Inativo").length;
+  const admins = users.filter((u) => u.role === "Administrador").length;
+
+  const handleDelete = (id: number) => {
+    const confirmed = window.confirm("Deseja remover este usuário?");
+    if (!confirmed) return;
+    setUsers((prev) => prev.filter((user) => user.id !== id));
+  };
+
+  const handleToggleStatus = (id: number) => {
+    setUsers((prev) =>
+      prev.map((user) =>
+        user.id === id
+          ? { ...user, status: user.status === "Ativo" ? "Inativo" : "Ativo" }
+          : user
+      )
+    );
+  };
+
+  const handleAddUser = () => {
+    const name = window.prompt("Nome do novo usuário:");
+    if (!name) return;
+
+    const email = window.prompt("E-mail do novo usuário:");
+    if (!email) return;
+
+    const newUser: User = {
+      id: Date.now(),
+      name,
+      email,
+      role: "Usuário",
+      status: "Ativo",
+    };
+
+    setUsers((prev) => [newUser, ...prev]);
+  };
+
+  const handleEditUser = (id: number) => {
+    const user = users.find((u) => u.id === id);
+    if (!user) return;
+
+    const newName = window.prompt("Editar nome:", user.name);
+    if (!newName) return;
+
+    const newEmail = window.prompt("Editar e-mail:", user.email);
+    if (!newEmail) return;
+
+    setUsers((prev) =>
+      prev.map((u) =>
+        u.id === id ? { ...u, name: newName, email: newEmail } : u
+      )
+    );
+  };
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold text-foreground">Administração</h1>
+        <p className="text-muted-foreground">Gerencie usuários, perfis e acessos do sistema.</p>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <div className="kpi-card">
+          <p className="text-sm text-muted-foreground">Total de usuários</p>
+          <h2 className="mt-2 text-3xl font-bold">{totalUsers}</h2>
+        </div>
+
+        <div className="kpi-card">
+          <p className="text-sm text-muted-foreground">Usuários ativos</p>
+          <h2 className="mt-2 text-3xl font-bold">{activeUsers}</h2>
+        </div>
+
+        <div className="kpi-card">
+          <p className="text-sm text-muted-foreground">Usuários inativos</p>
+          <h2 className="mt-2 text-3xl font-bold">{inactiveUsers}</h2>
+        </div>
+
+        <div className="kpi-card">
+          <p className="text-sm text-muted-foreground">Administradores</p>
+          <h2 className="mt-2 text-3xl font-bold">{admins}</h2>
+        </div>
+      </div>
+
+      <div className="glass-card p-6">
+        <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <h3 className="text-lg font-semibold">Gestão de usuários</h3>
+
+          <div className="flex gap-3">
+            <input
+              type="text"
+              placeholder="Buscar por nome, e-mail ou perfil"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="rounded-lg border border-border bg-background px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/30"
+            />
+
+            <button
+              onClick={handleAddUser}
+              className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
+            >
+              + Adicionar usuário
+            </button>
+          </div>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>E-mail</th>
+                <th>Perfil</th>
+                <th>Status</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {filteredUsers.length > 0 ? (
+                filteredUsers.map((user) => (
+                  <tr key={user.id}>
+                    <td>{user.name}</td>
+                    <td>{user.email}</td>
+                    <td>{user.role}</td>
+                    <td>
+                      <span
+                        className={`status-badge ${
+                          user.status === "Ativo" ? "status-success" : "status-danger"
+                        }`}
+                      >
+                        {user.status}
+                      </span>
+                    </td>
+                    <td>
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          onClick={() => handleEditUser(user.id)}
+                          className="rounded-md border border-border px-3 py-1.5 text-sm"
+                        >
+                          Editar
+                        </button>
+
+                        <button
+                          onClick={() => handleToggleStatus(user.id)}
+                          className="rounded-md border border-border px-3 py-1.5 text-sm"
+                        >
+                          {user.status === "Ativo" ? "Inativar" : "Ativar"}
+                        </button>
+
+                        <button
+                          onClick={() => handleDelete(user.id)}
+                          className="rounded-md border border-destructive/30 px-3 py-1.5 text-sm text-destructive"
+                        >
+                          Remover
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={5} className="py-8 text-center text-muted-foreground">
+                    Nenhum usuário encontrado.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}

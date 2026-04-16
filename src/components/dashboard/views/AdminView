@@ -9,10 +9,34 @@ type User = {
 };
 
 const initialUsers: User[] = [
-  { id: 1, name: "Ana Souza", email: "ana@empresa.com", role: "Administrador", status: "Ativo" },
-  { id: 2, name: "Carlos Lima", email: "carlos@empresa.com", role: "Gestor", status: "Ativo" },
-  { id: 3, name: "Fernanda Rocha", email: "fernanda@empresa.com", role: "Usuário", status: "Inativo" },
-  { id: 4, name: "Marcos Silva", email: "marcos@empresa.com", role: "Usuário", status: "Ativo" },
+  {
+    id: 1,
+    name: "Ana Souza",
+    email: "ana@empresa.com",
+    role: "Administrador",
+    status: "Ativo",
+  },
+  {
+    id: 2,
+    name: "Carlos Lima",
+    email: "carlos@empresa.com",
+    role: "Gestor",
+    status: "Ativo",
+  },
+  {
+    id: 3,
+    name: "Fernanda Rocha",
+    email: "fernanda@empresa.com",
+    role: "Usuário",
+    status: "Inativo",
+  },
+  {
+    id: 4,
+    name: "Marcos Silva",
+    email: "marcos@empresa.com",
+    role: "Usuário",
+    status: "Ativo",
+  },
 ];
 
 export default function AdminView() {
@@ -21,11 +45,14 @@ export default function AdminView() {
 
   const filteredUsers = useMemo(() => {
     const term = search.toLowerCase();
-    return users.filter((user) =>
-      user.name.toLowerCase().includes(term) ||
-      user.email.toLowerCase().includes(term) ||
-      user.role.toLowerCase().includes(term)
-    );
+
+    return users.filter((user) => {
+      return (
+        user.name.toLowerCase().includes(term) ||
+        user.email.toLowerCase().includes(term) ||
+        user.role.toLowerCase().includes(term)
+      );
+    });
   }, [search, users]);
 
   const totalUsers = users.length;
@@ -36,6 +63,7 @@ export default function AdminView() {
   const handleDelete = (id: number) => {
     const confirmed = window.confirm("Deseja remover este usuário?");
     if (!confirmed) return;
+
     setUsers((prev) => prev.filter((user) => user.id !== id));
   };
 
@@ -43,17 +71,20 @@ export default function AdminView() {
     setUsers((prev) =>
       prev.map((user) =>
         user.id === id
-          ? { ...user, status: user.status === "Ativo" ? "Inativo" : "Ativo" }
+          ? {
+              ...user,
+              status: user.status === "Ativo" ? "Inativo" : "Ativo",
+            }
           : user
       )
     );
   };
 
   const handleAddUser = () => {
-    const name = window.prompt("Nome do novo usuário:");
+    const name = window.prompt("Nome do novo usuário?");
     if (!name) return;
 
-    const email = window.prompt("E-mail do novo usuário:");
+    const email = window.prompt("E-mail do novo usuário?");
     if (!email) return;
 
     const newUser: User = {
@@ -79,7 +110,13 @@ export default function AdminView() {
 
     setUsers((prev) =>
       prev.map((u) =>
-        u.id === id ? { ...u, name: newName, email: newEmail } : u
+        u.id === id
+          ? {
+              ...u,
+              name: newName,
+              email: newEmail,
+            }
+          : u
       )
     );
   };
@@ -88,42 +125,54 @@ export default function AdminView() {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-foreground">Administração</h1>
-        <p className="text-muted-foreground">Gerencie usuários, perfis e acessos do sistema.</p>
+        <p className="text-muted-foreground">
+          Gerencie usuários, perfis e acessos do sistema.
+        </p>
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
         <div className="kpi-card">
           <p className="text-sm text-muted-foreground">Total de usuários</p>
-          <h2 className="mt-2 text-3xl font-bold">{totalUsers}</h2>
+          <h2 className="mt-2 text-3xl font-bold text-foreground">
+            {totalUsers}
+          </h2>
         </div>
 
         <div className="kpi-card">
           <p className="text-sm text-muted-foreground">Usuários ativos</p>
-          <h2 className="mt-2 text-3xl font-bold">{activeUsers}</h2>
+          <h2 className="mt-2 text-3xl font-bold text-foreground">
+            {activeUsers}
+          </h2>
         </div>
 
         <div className="kpi-card">
           <p className="text-sm text-muted-foreground">Usuários inativos</p>
-          <h2 className="mt-2 text-3xl font-bold">{inactiveUsers}</h2>
+          <h2 className="mt-2 text-3xl font-bold text-foreground">
+            {inactiveUsers}
+          </h2>
         </div>
 
         <div className="kpi-card">
           <p className="text-sm text-muted-foreground">Administradores</p>
-          <h2 className="mt-2 text-3xl font-bold">{admins}</h2>
+          <h2 className="mt-2 text-3xl font-bold text-foreground">
+            {admins}
+          </h2>
         </div>
       </div>
 
       <div className="glass-card p-6">
         <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <h3 className="text-lg font-semibold">Gestão de usuários</h3>
+          <h3 className="text-lg font-semibold text-foreground">
+            Gestão de usuários
+          </h3>
 
-          <div className="flex gap-3">
+          <div className="flex flex-col gap-3 md:flex-row">
             <input
               type="text"
               placeholder="Buscar por nome, e-mail ou perfil"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="rounded-lg border border-border bg-background px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/30"
+              className="rounded-lg border border-border bg-background px-4 py-2 text-sm text-foreground outline-none focus:ring-2 focus:ring-primary/30"
             />
 
             <button
@@ -156,9 +205,11 @@ export default function AdminView() {
                     <td>{user.role}</td>
                     <td>
                       <span
-                        className={`status-badge ${
-                          user.status === "Ativo" ? "status-success" : "status-danger"
-                        }`}
+                        className={
+                          user.status === "Ativo"
+                            ? "status-badge status-success"
+                            : "status-badge status-danger"
+                        }
                       >
                         {user.status}
                       </span>
@@ -167,14 +218,14 @@ export default function AdminView() {
                       <div className="flex flex-wrap gap-2">
                         <button
                           onClick={() => handleEditUser(user.id)}
-                          className="rounded-md border border-border px-3 py-1.5 text-sm"
+                          className="rounded-md border border-border px-3 py-1.5 text-sm text-foreground"
                         >
                           Editar
                         </button>
 
                         <button
                           onClick={() => handleToggleStatus(user.id)}
-                          className="rounded-md border border-border px-3 py-1.5 text-sm"
+                          className="rounded-md border border-border px-3 py-1.5 text-sm text-foreground"
                         >
                           {user.status === "Ativo" ? "Inativar" : "Ativar"}
                         </button>
@@ -191,7 +242,10 @@ export default function AdminView() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={5} className="py-8 text-center text-muted-foreground">
+                  <td
+                    colSpan={5}
+                    className="py-8 text-center text-muted-foreground"
+                  >
                     Nenhum usuário encontrado.
                   </td>
                 </tr>

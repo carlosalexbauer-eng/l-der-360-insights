@@ -1,13 +1,7 @@
-import { Dashboard } from '@/components/dashboard/Dashboard';
-import AIAssistant from '@/components/dashboard/AIAssistant';
+import { Dashboard } from "@/components/dashboard/Dashboard";
 
 const Index = () => {
-  return (
-    <>
-      <Dashboard />
-      <AIAssistant />
-    </>
-  );
+  return <Dashboard />;
 };
 
 export default Index;

@@ -4,12 +4,15 @@
     position: "fixed",
     right: "24px",
     bottom: "24px",
-    padding: "20px",
-    background: "red",
-    color: "white",
-    zIndex: 9999,
+    padding: "12px 16px",
+    borderRadius: "999px",
+    border: "none",
+    cursor: "pointer",
+    boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
+    zIndex: 99999, // 👈 importante
+    background: "#000",
+    color: "#fff",
   }}
 >
-  TESTE
+  Ver data
 </button>
-zIndex: 99999,

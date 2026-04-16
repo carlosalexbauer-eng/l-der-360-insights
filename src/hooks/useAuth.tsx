@@ -21,13 +21,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         
-        // Check admin role with setTimeout to avoid deadlock
         if (session?.user) {
           setTimeout(() => {
             checkAdminRole(session.user.id);
@@ -38,7 +36,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     );
 
-    // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
@@ -82,10 +79,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsAdmin(false);
   };
 
-return (
-  <AuthContext.Provider
-    value={{ user, session, isAdmin, loading, signIn, signUp, signOut }}
-  >
-    {children}
-  </AuthContext.Provider>
-);
+  return (
+    <AuthContext.Provider
+      value={{ user, session, isAdmin, loading, signIn, signUp, signOut }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
+}
